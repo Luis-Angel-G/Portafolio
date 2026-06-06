@@ -18,6 +18,16 @@ type Track = {
   duration: number;
 };
 
+type MissionProgress = {
+  key: string;
+  title: string;
+  phase: string;
+  actionLabel: string;
+  target: SectionId;
+  value: number;
+  label: string;
+};
+
 const root = document.getElementById('root');
 
 if (!root) {
@@ -70,7 +80,7 @@ const projects: Project[] = [
   },
 ];
 
-const tracks: Track[] = [
+const fallbackTracks: Track[] = [
   {
     title: 'Glownes',
     artist: 'Skygaze',
@@ -90,6 +100,8 @@ const tracks: Track[] = [
     duration: 225,
   },
 ];
+
+let tracks: Track[] = [...fallbackTracks];
 
 const avatars = [
   {
@@ -132,16 +144,27 @@ const skills = [
   ['Unreal Mindset', 72],
 ] as const;
 
+const abilities = [
+  ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript.'],
+  ['Game Feel Web', 'Three.js, energia visual y estructura pensada para experiencias jugables.'],
+  ['Deploy Mindset', 'Bun, Vite y rutas listas para publicar sin sobrecargar el proyecto.'],
+];
+
+const techStack = ['TypeScript', 'Three.js', 'Bun', 'Vite', 'CSS', 'Qwik Ready', 'APIs', 'GitHub'];
+
 const state = {
   activeSection: 'proyectos' as SectionId,
   selectedProject: 0,
   selectedAvatar: 0,
-  visitorCount: 1337,
+  visitorCount: 0,
+  visitorStatus: 'Conectando',
   visitedSections: new Set<SectionId>(['proyectos']),
   currentTrack: 0,
   isPlaying: false,
   isMuted: false,
   volume: 72,
+  playlistStatus: 'Playlist local',
+  projectPanelOpen: false,
 };
 
 const iconPaths: Record<string, string> = {
@@ -159,6 +182,8 @@ const iconPaths: Record<string, string> = {
 
 const formatCount = (value: number) => value.toLocaleString('es-GT');
 
+const formatVisitorCount = (value: number) => (value > 0 ? formatCount(value) : '--');
+
 const formatTime = (value: number) => {
   const safe = Number.isFinite(value) ? Math.max(0, value) : 0;
   const minutes = Math.floor(safe / 60);
@@ -174,10 +199,100 @@ const tagRow = (items: string[]) => items.map((item) => `<span>${item}</span>`).
 const screenClass = (id: SectionId, extra = '') =>
   `screen ${extra} ${state.activeSection === id ? 'active-screen' : ''}`.trim();
 
+const readString = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : '');
+
+const readNumber = (value: unknown) => {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+
+const normalizeTrack = (value: unknown): Track | null => {
+  const item = asRecord(value);
+  if (!item) return null;
+
+  const src = readString(item.src) || readString(item.url) || readString(item.audioUrl) || readString(item.preview_url);
+  const title = readString(item.title) || readString(item.name);
+  if (!src || !title) return null;
+
+  return {
+    title,
+    artist: readString(item.artist) || readString(item.author) || readString(item.creator) || 'Playlist API',
+    src,
+    duration: readNumber(item.duration) || readNumber(item.durationSeconds) || readNumber(item.length) || 180,
+  };
+};
+
+const readPlaylist = (payload: unknown) => {
+  if (Array.isArray(payload)) return payload;
+  const record = asRecord(payload);
+  const tracksPayload = record?.tracks ?? record?.playlist ?? record?.data;
+  return Array.isArray(tracksPayload) ? tracksPayload : [];
+};
+
+const getPlaylistUrl = () => import.meta.env.VITE_PLAYLIST_API_URL || './assets/audio/playlist.json';
+
+const getVisitorApiUrl = () => import.meta.env.VITE_VISITOR_API_URL || '';
+
+const getMissionProgress = (): MissionProgress[] => {
+  const projectValue = state.projectPanelOpen || state.selectedProject > 0 ? 100 : 55;
+  const profileValue = state.visitedSections.has('who-i-am') ? 100 : 35;
+  const avatarValue = state.selectedAvatar > 0 ? 100 : 50;
+  const careerValue = state.visitedSections.has('carrera') ? 100 : 25;
+
+  return [
+    {
+      key: 'projects',
+      title: 'Abrir panel de proyectos',
+      phase: 'Fase 1 de 4',
+      actionLabel: 'Ver proyectos',
+      target: 'proyectos',
+      value: projectValue,
+      label: state.projectPanelOpen ? 'Panel abierto' : 'Pendiente',
+    },
+    {
+      key: 'who',
+      title: 'Leer Who I Am',
+      phase: 'Fase 2 de 4',
+      actionLabel: 'Ver perfil',
+      target: 'who-i-am',
+      value: profileValue,
+      label: profileValue === 100 ? 'Completa' : 'Sin revisar',
+    },
+    {
+      key: 'avatar',
+      title: 'Cambiar avatar',
+      phase: 'Fase 3 de 4',
+      actionLabel: 'Ir a skins',
+      target: 'who-i-am',
+      value: avatarValue,
+      label: avatarValue === 100 ? 'Skin alterna lista' : 'Boltrex activo',
+    },
+    {
+      key: 'career',
+      title: 'Revisar Mi Camino a Unreal',
+      phase: 'Mision final',
+      actionLabel: 'Ver carrera',
+      target: 'carrera',
+      value: careerValue,
+      label: careerValue === 100 ? 'Ruta vista' : 'Bloqueada',
+    },
+  ];
+};
+
+const getMissionAverage = () => {
+  const missions = getMissionProgress();
+  return Math.round(missions.reduce((total, mission) => total + mission.value, 0) / missions.length);
+};
+
 const renderShell = () => {
   const project = projects[state.selectedProject];
   const avatar = avatars[state.selectedAvatar];
   const track = tracks[state.currentTrack];
+  const missions = getMissionProgress();
+  const missionAverage = getMissionAverage();
 
   root.innerHTML = `
     <main class="app-shell" data-active-section="${state.activeSection}">
@@ -195,7 +310,7 @@ const renderShell = () => {
       <aside class="status-panel" aria-label="Estado del portafolio">
         <p>Estado: Online</p>
         <span>60 FPS | 24ms</span>
-        <div>${icon('users')}<strong data-visitor-status>${formatCount(state.visitorCount)}</strong><small>Visitantes</small></div>
+        <div>${icon('users')}<strong data-visitor-status>${formatVisitorCount(state.visitorCount)}</strong><small data-visitor-label>${state.visitorStatus}</small></div>
         <div>${icon('wifi')}<strong>Vite</strong><small>Conexion</small></div>
       </aside>
 
@@ -209,8 +324,8 @@ const renderShell = () => {
 
         <div class="visitor-counter" aria-label="Contador de visitantes">
           ${icon('users')}
-          <span data-visitor-main>${formatCount(state.visitorCount)}</span>
-          <strong>VISITANTES</strong>
+          <span data-visitor-main>${formatVisitorCount(state.visitorCount)}</span>
+          <strong data-visitor-label>${state.visitorStatus}</strong>
         </div>
 
         <div class="stage">
@@ -237,11 +352,13 @@ const renderShell = () => {
             <p class="eyebrow">Reproduciendo</p>
             <strong data-track-title>${track.title}</strong>
             <span data-track-artist>${track.artist}</span>
+            <small data-playlist-status>${state.playlistStatus}</small>
           </div>
           <div class="music-controls">
             <button type="button" data-audio-prev aria-label="Cancion anterior">${icon('skipBack')}</button>
             <button class="play" type="button" data-audio-play aria-label="Reproducir musica">${icon('play')}</button>
             <button type="button" data-audio-next aria-label="Siguiente cancion">${icon('skipForward')}</button>
+            <button type="button" data-playlist-refresh aria-label="Recargar playlist">${icon('wifi')}</button>
           </div>
           <div class="time-row"><span data-time-current>0:00</span><span data-time-duration>${formatTime(track.duration)}</span></div>
           <input class="range" data-audio-progress type="range" min="0" max="100" step="0.1" value="0" style="--fill: 0%" aria-label="Progreso de cancion">
@@ -251,7 +368,31 @@ const renderShell = () => {
           </div>
         </aside>
 
-        <button class="scroll-cue" type="button" data-scroll="who-i-am"><span>Click para explorar</span><i></i></button>
+        <button class="scroll-cue ${state.projectPanelOpen ? 'active' : ''}" type="button" data-open-projects>
+          <span>Scroll para ver proyectos</span><i></i>
+        </button>
+
+        <section id="project-panel" class="project-drawer ${state.projectPanelOpen ? 'open' : ''}" data-project-panel aria-label="Panel de proyectos">
+          <div class="preview-header">
+            <p class="eyebrow">Selecciona una isla</p>
+            <h2>Proyectos</h2>
+          </div>
+          <button class="drawer-close" type="button" data-close-projects aria-label="Cerrar panel">Cerrar</button>
+          <div class="preview-grid">
+            ${projects
+              .map(
+                (item, index) => `
+                  <button type="button" data-project="${index}" class="project-card ${index === state.selectedProject ? 'active' : ''}">
+                    <span class="reward">${item.reward}</span>
+                    <strong>${item.title}</strong>
+                    <small>${item.mode}</small>
+                    <p>${item.summary}</p>
+                    <i>Seleccionar</i>
+                  </button>`
+              )
+              .join('')}
+          </div>
+        </section>
       </section>
 
       <section id="who-i-am" data-section="who-i-am" class="${screenClass('who-i-am', 'profile-screen section-grid')}">
@@ -287,6 +428,13 @@ const renderShell = () => {
             <span><strong>GT</strong>Region</span>
             <span><strong>Game Web</strong>Audiencia</span>
           </div>
+          <div class="ability-grid">
+            ${abilities.map(([title, text]) => `<div><strong>${title}</strong><span>${text}</span></div>`).join('')}
+          </div>
+          <div class="tech-stack">
+            <p class="eyebrow">Tech stack</p>
+            <div>${tagRow(techStack)}</div>
+          </div>
           <div class="profile-links">
             <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
             <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>
@@ -298,8 +446,6 @@ const renderShell = () => {
         <div class="mission-layout">
           <aside class="mission-tabs" aria-label="Categorias de misiones">
             <button class="active" type="button" aria-label="Misiones principales">XP</button>
-            <button type="button" aria-label="Buscar misiones">${icon('arrow')}</button>
-            <button type="button" aria-label="Recompensas">PE</button>
           </aside>
 
           <div class="mission-board">
@@ -314,20 +460,17 @@ const renderShell = () => {
             </div>
 
             <div class="mission-list">
-              ${missionCard('Ver proyectos destacados', 'Fase 1 de 4', '5K PE', 'Entrar', 'proyectos', 100, '2 / 3 proyectos')}
-              ${missionCard('Leer perfil de desarrollador', 'Fase 2 de 4', '7K PE', 'Abrir perfil', 'who-i-am', 40, 'Completar para XP')}
-              ${missionCard('Seleccionar una skin', 'Fase 3 de 4', '10K PE', 'Ir a perfil', 'who-i-am', 65, 'Avatar listo')}
-              ${missionCard('Revisar Mi Camino a Unreal', 'Mision final', 'Badge Unreal', 'Ver carrera', 'carrera', 30, 'Mision final')}
+              ${missions.map((mission) => missionCard(mission)).join('')}
             </div>
           </div>
 
           <aside class="mission-summary">
             <div>
               <p class="eyebrow">Progreso de temporada</p>
-              <strong data-season-progress>25%</strong>
-              <span>Secciones descubiertas</span>
+              <strong data-season-progress>${missionAverage}%</strong>
+              <span>Misiones completadas</span>
             </div>
-            <div class="meter"><i data-season-meter style="width: 25%"></i></div>
+            <div class="meter"><i data-season-meter style="width: ${missionAverage}%"></i></div>
             <div class="level-ring" aria-label="Nivel del portafolio">
               <span>Nivel</span>
               <strong>220</strong>
@@ -380,56 +523,23 @@ const renderShell = () => {
         </div>
       </section>
 
-      <section id="project-previews" class="project-previews" aria-label="Previews de proyectos">
-        <div class="preview-header">
-          <p class="eyebrow">Selecciona una isla</p>
-          <h2>Previews de proyectos</h2>
-        </div>
-        <div class="preview-grid">
-          ${projects
-            .map(
-              (item, index) => `
-                <button type="button" data-project="${index}" class="project-card ${index === state.selectedProject ? 'active' : ''}">
-                  <span class="reward">${item.reward}</span>
-                  <strong>${item.title}</strong>
-                  <small>${item.mode}</small>
-                  <p>${item.summary}</p>
-                  <i>Seleccionar</i>
-                </button>`
-            )
-            .join('')}
-        </div>
-      </section>
-
       <footer class="footer-bar">
         <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a href="./assets/audio/license.txt" target="_blank" rel="noreferrer">Musica</a>
       </footer>
     </main>
   `;
 };
 
-const missionCard = (
-  title: string,
-  phase: string,
-  reward: string,
-  actionLabel: string,
-  target: string,
-  progress: number,
-  progressLabel: string
-) => `
-  <article class="mission-card ${progress >= 100 ? 'complete' : ''}">
+const missionCard = (mission: MissionProgress) => `
+  <article class="mission-card ${mission.value >= 100 ? 'complete' : ''}" data-mission-card="${mission.key}">
     <div class="mission-copy">
-      <span>${phase}</span>
-      <h3>${title}</h3>
-      <div class="meter"><i data-mission-meter="${target}" style="width: ${progress}%"></i><b>${progressLabel}</b></div>
+      <span>${mission.phase}</span>
+      <h3>${mission.title}</h3>
+      <div class="meter"><i data-mission-meter="${mission.key}" style="width: ${mission.value}%"></i><b data-mission-label="${mission.key}">${mission.label}</b></div>
     </div>
-    <div class="mission-reward" aria-label="Recompensa">
-      <strong>XP</strong>
-      <span>${reward}</span>
-    </div>
-    <button type="button" data-scroll="${target}">${actionLabel}</button>
+    <strong data-mission-percent="${mission.key}">${mission.value}%</strong>
+    <button type="button" data-scroll="${mission.target}">${mission.actionLabel}</button>
   </article>
 `;
 
@@ -440,8 +550,12 @@ const scrollToTarget = (target: string) => {
 
   state.activeSection = target as SectionId;
   state.visitedSections.add(state.activeSection);
+  if (state.activeSection !== 'proyectos') {
+    state.projectPanelOpen = false;
+  }
   updateNav();
   updateVisibleScreens();
+  updateProjectPanel();
   updateSeasonProgress();
 };
 
@@ -453,6 +567,11 @@ const updateVisibleScreens = () => {
   });
 };
 
+const updateProjectPanel = () => {
+  document.querySelector<HTMLElement>('[data-project-panel]')?.classList.toggle('open', state.projectPanelOpen);
+  document.querySelector<HTMLElement>('[data-open-projects]')?.classList.toggle('active', state.projectPanelOpen);
+};
+
 const updateNav = () => {
   document.querySelectorAll<HTMLElement>('[data-nav]').forEach((button) => {
     button.classList.toggle('active', button.dataset.nav === state.activeSection);
@@ -461,29 +580,30 @@ const updateNav = () => {
 
 const updateVisitorText = () => {
   document.querySelectorAll<HTMLElement>('[data-visitor-main], [data-visitor-status]').forEach((node) => {
-    node.textContent = formatCount(state.visitorCount);
+    node.textContent = formatVisitorCount(state.visitorCount);
+  });
+  document.querySelectorAll<HTMLElement>('[data-visitor-label]').forEach((node) => {
+    node.textContent = state.visitorStatus;
   });
 };
 
 const updateSeasonProgress = () => {
-  const percent = Math.round((state.visitedSections.size / navItems.length) * 100);
+  const missions = getMissionProgress();
+  const percent = getMissionAverage();
   const label = document.querySelector<HTMLElement>('[data-season-progress]');
   const meter = document.querySelector<HTMLElement>('[data-season-meter]');
   if (label) label.textContent = `${percent}%`;
   if (meter) meter.style.width = `${percent}%`;
 
-  document.querySelector<HTMLElement>('[data-mission-meter="who-i-am"]')?.style.setProperty(
-    'width',
-    state.visitedSections.has('who-i-am') ? '100%' : '40%'
-  );
-  document.querySelector<HTMLElement>('[data-mission-meter="carrera"]')?.style.setProperty(
-    'width',
-    state.visitedSections.has('carrera') ? '100%' : '30%'
-  );
-  document.querySelector<HTMLElement>('[data-mission-meter="project-previews"]')?.style.setProperty(
-    'width',
-    state.selectedProject > 0 ? '100%' : '65%'
-  );
+  missions.forEach((mission) => {
+    document.querySelector<HTMLElement>(`[data-mission-meter="${mission.key}"]`)?.style.setProperty('width', `${mission.value}%`);
+    const labelNode = document.querySelector<HTMLElement>(`[data-mission-label="${mission.key}"]`);
+    const percentNode = document.querySelector<HTMLElement>(`[data-mission-percent="${mission.key}"]`);
+    const card = document.querySelector<HTMLElement>(`[data-mission-card="${mission.key}"]`);
+    if (labelNode) labelNode.textContent = mission.label;
+    if (percentNode) percentNode.textContent = `${mission.value}%`;
+    card?.classList.toggle('complete', mission.value >= 100);
+  });
 };
 
 const updateProject = (index: number) => {
@@ -497,6 +617,8 @@ const updateProject = (index: number) => {
   document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
     button.classList.toggle('active', Number(button.dataset.project) === state.selectedProject);
   });
+  state.projectPanelOpen = false;
+  updateProjectPanel();
   updateSeasonProgress();
   scrollToTarget('proyectos');
 };
@@ -511,12 +633,43 @@ const updateAvatar = (index: number) => {
   document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((button) => {
     button.classList.toggle('active', Number(button.dataset.avatar) === state.selectedAvatar);
   });
+  updateSeasonProgress();
+};
+
+const setPlaylistStatus = (status: string) => {
+  state.playlistStatus = status;
+  const statusNode = document.querySelector<HTMLElement>('[data-playlist-status]');
+  if (statusNode) statusNode.textContent = status;
+};
+
+const loadPlaylist = async (onLoaded?: () => void) => {
+  const url = getPlaylistUrl();
+  try {
+    setPlaylistStatus('Conectando playlist');
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Playlist ${response.status}`);
+
+    const payload = await response.json();
+    const loaded = readPlaylist(payload).map(normalizeTrack).filter((track): track is Track => Boolean(track));
+    if (!loaded.length) throw new Error('Playlist vacia');
+
+    tracks = loaded;
+    state.currentTrack = Math.min(state.currentTrack, tracks.length - 1);
+    setPlaylistStatus(import.meta.env.VITE_PLAYLIST_API_URL ? 'Playlist API' : 'Playlist JSON');
+    onLoaded?.();
+  } catch {
+    tracks = [...fallbackTracks];
+    state.currentTrack = Math.min(state.currentTrack, tracks.length - 1);
+    setPlaylistStatus('Playlist local pendiente');
+    onLoaded?.();
+  }
 };
 
 const initAudio = () => {
   const audio = document.querySelector<HTMLAudioElement>('[data-audio]');
   const playButton = document.querySelector<HTMLButtonElement>('[data-audio-play]');
   const muteButton = document.querySelector<HTMLButtonElement>('[data-audio-mute]');
+  const refreshButton = document.querySelector<HTMLButtonElement>('[data-playlist-refresh]');
   const progress = document.querySelector<HTMLInputElement>('[data-audio-progress]');
   const volume = document.querySelector<HTMLInputElement>('[data-audio-volume]');
   const current = document.querySelector<HTMLElement>('[data-time-current]');
@@ -534,7 +687,13 @@ const initAudio = () => {
     current.textContent = '0:00';
     progress.value = '0';
     progress.style.setProperty('--fill', '0%');
-    if (state.isPlaying) void audio.play();
+    if (state.isPlaying) {
+      void audio.play().catch(() => {
+        state.isPlaying = false;
+        updatePlayIcon();
+        setPlaylistStatus('Agrega archivos o API');
+      });
+    }
   };
 
   const updatePlayIcon = () => {
@@ -549,8 +708,13 @@ const initAudio = () => {
     } else {
       audio.volume = state.volume / 100;
       audio.muted = state.isMuted;
-      await audio.play();
-      state.isPlaying = true;
+      try {
+        await audio.play();
+        state.isPlaying = true;
+      } catch {
+        state.isPlaying = false;
+        setPlaylistStatus('Agrega archivos o API');
+      }
     }
     updatePlayIcon();
   });
@@ -563,6 +727,10 @@ const initAudio = () => {
   document.querySelector('[data-audio-next]')?.addEventListener('click', () => {
     state.currentTrack = (state.currentTrack + 1) % tracks.length;
     applyTrack();
+  });
+
+  refreshButton?.addEventListener('click', () => {
+    void loadPlaylist(applyTrack);
   });
 
   muteButton.addEventListener('click', () => {
@@ -600,6 +768,8 @@ const initAudio = () => {
     state.currentTrack = (state.currentTrack + 1) % tracks.length;
     applyTrack();
   });
+
+  void loadPlaylist(applyTrack);
 };
 
 const initThree = async () => {
@@ -678,8 +848,41 @@ const bindInteractions = () => {
     button.addEventListener('click', () => {
       const target = button.dataset.nav ?? button.dataset.scroll;
       if (target) scrollToTarget(target);
+      if (button.dataset.scroll === 'proyectos') {
+        state.projectPanelOpen = true;
+        updateProjectPanel();
+        updateSeasonProgress();
+      }
     });
   });
+
+  document.querySelector<HTMLElement>('[data-open-projects]')?.addEventListener('click', () => {
+    state.activeSection = 'proyectos';
+    state.visitedSections.add('proyectos');
+    state.projectPanelOpen = true;
+    updateVisibleScreens();
+    updateNav();
+    updateProjectPanel();
+    updateSeasonProgress();
+  });
+
+  document.querySelector<HTMLElement>('[data-close-projects]')?.addEventListener('click', () => {
+    state.projectPanelOpen = false;
+    updateProjectPanel();
+    updateSeasonProgress();
+  });
+
+  document.getElementById('proyectos')?.addEventListener(
+    'wheel',
+    (event) => {
+      if (event.deltaY <= 20 || state.activeSection !== 'proyectos' || state.projectPanelOpen) return;
+      event.preventDefault();
+      state.projectPanelOpen = true;
+      updateProjectPanel();
+      updateSeasonProgress();
+    },
+    { passive: false }
+  );
 
   document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
     button.addEventListener('click', () => updateProject(Number(button.dataset.project)));
@@ -690,19 +893,94 @@ const bindInteractions = () => {
   });
 };
 
-const initVisitors = () => {
-  const stored = window.localStorage.getItem('victory-grid-visited');
-  const baseline = 1337 + (Math.floor(Date.now() / 86400000) % 900);
-  state.visitorCount = baseline + (stored ? 7 : 1);
-  window.localStorage.setItem('victory-grid-visited', 'true');
+const setVisitorCount = (count: number, status: string) => {
+  state.visitorCount = Math.max(0, Math.round(count));
+  state.visitorStatus = status;
   updateVisitorText();
+};
 
-  window.setInterval(() => {
-    if (Math.random() > 0.55) {
-      state.visitorCount += 1;
-      updateVisitorText();
+const initVisitorApi = (apiUrl: string) => {
+  const baseUrl = apiUrl.replace(/\/$/, '');
+  const visitorId = window.sessionStorage.getItem('victory-grid-visitor-id') || crypto.randomUUID();
+  window.sessionStorage.setItem('victory-grid-visitor-id', visitorId);
+
+  const readCount = async () => {
+    const response = await fetch(`${baseUrl}/live`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Visitor API ${response.status}`);
+    const payload = asRecord(await response.json());
+    const count = readNumber(payload?.count) || readNumber(payload?.active) || readNumber(payload?.visitors);
+    if (!count) throw new Error('Visitor API payload missing count');
+    setVisitorCount(count, 'EN VIVO API');
+  };
+
+  const join = () =>
+    fetch(`${baseUrl}/join`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: visitorId, page: window.location.pathname }),
+    }).catch(() => undefined);
+
+  const leave = () => {
+    const payload = JSON.stringify({ id: visitorId, page: window.location.pathname });
+    navigator.sendBeacon?.(`${baseUrl}/leave`, new Blob([payload], { type: 'application/json' }));
+  };
+
+  void join().then(readCount).catch(() => setVisitorCount(0, 'API sin respuesta'));
+  const timer = window.setInterval(() => {
+    void join().then(readCount).catch(() => setVisitorCount(state.visitorCount, 'Reconectando'));
+  }, 8000);
+
+  window.addEventListener('pagehide', () => {
+    window.clearInterval(timer);
+    leave();
+  });
+};
+
+const initLocalVisitors = () => {
+  const key = 'victory-grid-live-visitors';
+  const ttl = 18000;
+  const visitorId = window.sessionStorage.getItem('victory-grid-visitor-id') || crypto.randomUUID();
+  window.sessionStorage.setItem('victory-grid-visitor-id', visitorId);
+
+  const readRoster = () => {
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(key) || '{}') as Record<string, number>;
+      const now = Date.now();
+      return Object.fromEntries(Object.entries(parsed).filter(([, expires]) => expires > now));
+    } catch {
+      return {};
     }
-  }, 4200);
+  };
+
+  const touch = () => {
+    const roster = readRoster();
+    roster[visitorId] = Date.now() + ttl;
+    window.localStorage.setItem(key, JSON.stringify(roster));
+    setVisitorCount(Object.keys(roster).length, 'EN VIVO LOCAL');
+  };
+
+  touch();
+  const timer = window.setInterval(touch, 5000);
+  window.addEventListener('storage', (event) => {
+    if (event.key === key) {
+      setVisitorCount(Object.keys(readRoster()).length, 'EN VIVO LOCAL');
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    const roster = readRoster();
+    delete roster[visitorId];
+    window.localStorage.setItem(key, JSON.stringify(roster));
+    window.clearInterval(timer);
+  });
+};
+
+const initVisitors = () => {
+  const visitorApiUrl = getVisitorApiUrl();
+  if (visitorApiUrl) {
+    initVisitorApi(visitorApiUrl);
+  } else {
+    initLocalVisitors();
+  }
 };
 
 renderShell();
