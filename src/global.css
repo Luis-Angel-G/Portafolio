@@ -30,7 +30,7 @@ body {
   min-width: 320px;
   background: var(--bg);
   color: var(--text);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 button,
@@ -77,9 +77,11 @@ svg {
 .app-shell {
   position: relative;
   isolation: isolate;
+  width: 100%;
+  height: 100vh;
   min-height: 100vh;
   overflow: hidden;
-  padding-bottom: 3rem;
+  padding-bottom: 0;
   background:
     linear-gradient(180deg, rgba(9, 11, 18, 0) 0, rgba(9, 11, 18, 0.6) 52rem, #090b12 70rem),
     var(--bg);
@@ -126,13 +128,31 @@ svg {
 }
 
 .screen {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   min-height: 100vh;
   padding: clamp(6rem, 12vw, 8rem) clamp(1rem, 4vw, 4rem) 5rem;
+  overflow: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(1rem);
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(95, 216, 255, 0.55) rgba(255, 255, 255, 0.08);
+}
+
+.screen.active-screen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .lobby-screen {
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: grid;
   grid-template-columns: minmax(18rem, 35rem) minmax(18rem, 1fr) minmax(17rem, 22rem);
   align-items: end;
@@ -252,6 +272,10 @@ svg {
   text-transform: uppercase;
 }
 
+.app-shell:not([data-active-section="proyectos"]) .status-panel {
+  display: none;
+}
+
 .stage,
 .profile-character {
   position: relative;
@@ -269,7 +293,7 @@ svg {
 .energy-canvas {
   position: absolute;
   inset: auto 50% 3.5rem auto;
-  z-index: 1;
+  z-index: 0;
   width: min(42vw, 42rem);
   height: min(28vw, 22rem);
   transform: translateX(50%);
@@ -287,6 +311,7 @@ svg {
 .pedestal-rings {
   position: absolute;
   inset: auto auto 1rem 50%;
+  z-index: 0;
   width: min(40vw, 31rem);
   aspect-ratio: 3.2 / 1;
   transform: translateX(-50%);
@@ -318,6 +343,8 @@ svg {
 }
 
 .lobby-character {
+  position: relative;
+  z-index: 2;
   width: min(26vw, 28rem);
   max-height: 72vh;
   object-fit: contain;
@@ -664,6 +691,9 @@ svg {
 
 .profile-character {
   grid-column: 2;
+  min-height: min(62vh, 40rem);
+  place-items: center;
+  align-self: start;
 }
 
 .profile-character img {
@@ -672,10 +702,13 @@ svg {
   object-fit: contain;
   filter: drop-shadow(0 2.2rem 2.5rem rgba(0, 0, 0, 0.55));
   z-index: 2;
+  transform: translateY(-1.6rem);
 }
 
 .bio-panel,
 .mission-summary,
+.mission-category,
+.career-summary,
 .career-card,
 .skill-board,
 .mission-card,
@@ -749,34 +782,187 @@ svg {
   color: #07121e;
 }
 
-.missions-screen {
-  gap: 1.4rem;
+.missions-screen,
+.career-screen {
+  background:
+    linear-gradient(135deg, rgba(9, 11, 18, 0.74), rgba(9, 11, 18, 0.28) 52%, rgba(9, 11, 18, 0.82)),
+    rgba(9, 11, 18, 0.18);
 }
 
-.missions-screen .panel-title {
-  grid-column: 1 / -1;
-}
-
-.mission-list {
-  grid-column: 1 / span 2;
+.mission-layout,
+.career-layout {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  max-width: 90rem;
+  margin: 0 auto;
+}
+
+.mission-layout {
+  grid-template-columns: 4.8rem minmax(0, 1fr) minmax(18rem, 23rem);
+  align-items: start;
+}
+
+.mission-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.mission-tabs button {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: rgba(17, 21, 32, 0.78);
+  color: var(--muted);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  box-shadow: var(--shadow);
+  transform: skewX(-8deg);
+  backdrop-filter: blur(14px);
+}
+
+.mission-tabs button.active,
+.mission-tabs button:hover {
+  background: var(--cyan);
+  color: #07121e;
+}
+
+.mission-board {
+  display: grid;
   gap: 1rem;
 }
 
+.mission-category {
+  padding: 0.72rem 1.1rem;
+  border-left: 0.28rem solid var(--cyan);
+  border-radius: 0.35rem;
+  color: var(--text);
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+}
+
+.mission-category span {
+  display: inline-block;
+  transform: skewX(8deg);
+}
+
+.mission-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.mission-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.4rem auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.1rem;
+  border-radius: 0.25rem;
+  border-color: rgba(255, 255, 255, 0.12);
+  clip-path: polygon(2% 0, 100% 0, 98% 100%, 0 100%);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.mission-card.complete,
+.mission-card:hover {
+  transform: translateX(0.35rem);
+  border-color: rgba(95, 216, 255, 0.72);
+  background:
+    linear-gradient(180deg, rgba(95, 216, 255, 0.1), rgba(255, 255, 255, 0.02)),
+    rgba(17, 21, 32, 0.92);
+}
+
+.mission-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mission-copy span,
+.mission-reward span,
+.season-track span,
+.season-track strong {
+  color: var(--cyan);
+  font-family: "Courier New", monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mission-copy h3 {
+  margin: 0;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: clamp(1.25rem, 2.2vw, 2rem);
+  font-style: italic;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.mission-reward {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+}
+
+.mission-reward strong {
+  display: grid;
+  place-items: center;
+  width: 3.9rem;
+  height: 3.9rem;
+  border: 1px solid rgba(95, 216, 255, 0.55);
+  border-radius: 0.45rem;
+  background: rgba(95, 216, 255, 0.14);
+  color: var(--cyan);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 1.2rem;
+  font-style: italic;
+}
+
+.mission-reward span {
+  color: var(--gold);
+}
+
+.mission-card button {
+  min-height: 2.8rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  background: var(--gold);
+  color: #101014;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 1rem;
+  font-style: italic;
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+}
+
+.mission-card button:hover {
+  background: #ffffff;
+}
+
 .mission-summary {
-  grid-column: 3;
-  padding: 1rem;
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.25rem;
   border-radius: 0.55rem;
   align-self: start;
 }
 
-.mission-summary strong {
+.mission-summary > div:first-child strong {
   display: block;
   margin-bottom: 0.2rem;
   color: var(--gold);
   font-family: Impact, "Arial Black", sans-serif;
-  font-size: 2.1rem;
+  font-size: 3rem;
   font-style: italic;
   line-height: 1;
 }
@@ -787,58 +973,26 @@ svg {
   text-transform: uppercase;
 }
 
-.mission-card {
+.level-ring {
   display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 0.55rem;
+  place-items: center;
+  justify-self: center;
+  width: 8.2rem;
+  aspect-ratio: 1;
+  border: 0.55rem solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--cyan);
+  border-right-color: var(--cyan);
+  border-radius: 50%;
+  background: rgba(9, 11, 18, 0.45);
+  box-shadow: 0 0 24px rgba(95, 216, 255, 0.24);
 }
 
-.mission-card > div {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.mission-card span {
-  color: var(--cyan);
-  font-family: "Courier New", monospace;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.mission-card h3 {
-  margin: 0;
+.level-ring strong {
+  color: var(--text);
   font-family: Impact, "Arial Black", sans-serif;
-  font-size: 1.35rem;
+  font-size: 2rem;
   font-style: italic;
-  line-height: 0.95;
-  text-transform: uppercase;
-}
-
-.mission-card strong {
-  color: var(--gold);
-  font-family: Impact, "Arial Black", sans-serif;
-  font-size: 1.3rem;
-  font-style: italic;
-}
-
-.mission-card button {
-  justify-self: start;
-  min-height: 2.6rem;
-  padding: 0.45rem 0.9rem;
-  border-radius: 0.35rem;
-  background: var(--cyan);
-  color: #07121e;
-  font-family: Impact, "Arial Black", sans-serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  text-transform: uppercase;
-}
-
-.mission-card button:hover {
-  background: #ffffff;
+  line-height: 0.9;
 }
 
 .meter {
@@ -858,56 +1012,121 @@ svg {
   box-shadow: 0 0 14px rgba(95, 216, 255, 0.45);
 }
 
-.career-screen {
+.meter b {
+  position: absolute;
+  inset: 0;
   display: grid;
-  gap: 1.2rem;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: "Courier New", monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+}
+
+.career-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
   align-items: start;
 }
 
+.career-main {
+  display: grid;
+  gap: 1rem;
+}
+
 .career-header {
-  max-width: 52rem;
+  max-width: 58rem;
+}
+
+.career-header h2 {
+  font-size: clamp(3rem, 7.8vw, 5.7rem);
+  line-height: 0.9;
+}
+
+.season-track {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem 1rem;
+}
+
+.season-track .meter {
+  grid-column: 1 / -1;
+  height: 0.35rem;
+}
+
+.season-track strong {
+  justify-self: end;
+  color: var(--gold);
 }
 
 .career-track {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .career-card {
-  padding: 1rem;
-  border-radius: 0.55rem;
+  position: relative;
+  min-height: 12rem;
+  padding: 1.15rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.career-card.featured {
+  border-color: rgba(95, 216, 255, 0.58);
+  background:
+    linear-gradient(135deg, rgba(95, 216, 255, 0.18), rgba(255, 207, 87, 0.06)),
+    var(--surface);
+}
+
+.career-card:hover {
+  transform: translateY(-0.18rem);
+  border-color: rgba(95, 216, 255, 0.5);
 }
 
 .career-card span {
-  display: block;
-  margin-bottom: 0.4rem;
+  display: inline-block;
+  margin-bottom: 0.65rem;
   color: var(--cyan);
   font-family: "Courier New", monospace;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.career-card h3 {
-  margin: 0 0 0.5rem;
+.career-card h3,
+.skill-board h3,
+.career-summary h3 {
+  margin: 0 0 0.55rem;
   font-family: Impact, "Arial Black", sans-serif;
-  font-size: 1.2rem;
   font-style: italic;
+  line-height: 0.95;
   text-transform: uppercase;
+}
+
+.career-card h3 {
+  font-size: clamp(1.35rem, 2.5vw, 2.1rem);
 }
 
 .skill-board {
   display: grid;
   gap: 0.8rem;
-  padding: 1rem;
+  padding: 1.15rem;
   border-radius: 0.55rem;
+}
+
+.skill-board h3 {
+  font-size: 1.55rem;
 }
 
 .skill-row {
   display: grid;
-  grid-template-columns: minmax(0, 10rem) 1fr auto;
+  grid-template-columns: minmax(0, 11rem) 1fr auto;
   gap: 0.75rem;
   align-items: center;
 }
@@ -923,16 +1142,78 @@ svg {
   color: var(--cyan);
   font-family: "Courier New", monospace;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
-.project-previews {
-  position: relative;
-  z-index: 1;
-  padding: 1.5rem clamp(1rem, 4vw, 4rem) 5rem;
+.career-summary {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  padding: 1.35rem;
+  border-radius: 0.55rem;
+  text-align: center;
+}
+
+.rank-badge {
+  display: grid;
+  place-items: center;
+  width: min(42vw, 10rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(95, 216, 255, 0.62);
+  border-radius: 0.55rem;
+  background:
+    radial-gradient(circle, rgba(95, 216, 255, 0.38), rgba(95, 216, 255, 0.08) 58%, rgba(9, 11, 18, 0.5)),
+    rgba(17, 21, 32, 0.72);
+  color: var(--cyan);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 3.4rem;
+  font-style: italic;
+  box-shadow: 0 0 34px rgba(95, 216, 255, 0.24);
+}
+
+.career-summary h3 {
+  color: var(--text);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+}
+
+.career-summary > strong {
+  color: var(--muted);
+}
+
+.career-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(9, 11, 18, 0.88), rgba(9, 11, 18, 0.98));
+}
+
+.career-stats span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.career-stats small {
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.career-stats b {
+  color: var(--gold);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 1.25rem;
+  font-style: italic;
+}
+
+.project-previews {
+  display: none;
 }
 
 .preview-header {
@@ -1088,6 +1369,15 @@ svg {
     display: none;
   }
 
+  .mission-layout,
+  .career-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-tabs {
+    flex-direction: row;
+  }
+
   .preview-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1179,9 +1469,25 @@ svg {
     min-height: 34rem;
   }
 
+  .profile-character img {
+    transform: translateY(-1rem);
+  }
+
   .mission-list {
     margin: 1.2rem 0;
+  }
+
+  .mission-card {
     grid-template-columns: 1fr;
+    clip-path: none;
+  }
+
+  .mission-reward {
+    justify-items: start;
+  }
+
+  .mission-card button {
+    justify-self: start;
   }
 
   .career-track {
