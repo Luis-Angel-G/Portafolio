@@ -1,5 +1,4 @@
 import { icon } from '../icons';
-import { state } from '../state';
 
 export const MusicPlayer = (): string => `
   <aside class="music-player" aria-label="Reproductor de música">
@@ -54,32 +53,5 @@ export const MusicPlayer = (): string => `
       aria-label="Progreso de canción"
     >
 
-    <!-- Volume row -->
-    <div class="volume-row">
-      <button type="button" data-audio-mute aria-label="Silenciar">
-        ${icon('volume')}
-      </button>
-      <input
-        class="range"
-        data-audio-volume
-        type="range"
-        min="0"
-        max="100"
-        value="${state.volume}"
-        style="--fill: ${state.volume}%"
-        aria-label="Volumen"
-      >
-    </div>
-
-    <!-- Open in YouTube link -->
-    <a
-      class="yt-open-link"
-      href="https://youtube.com/playlist?list=PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3w"
-      target="_blank"
-      rel="noreferrer"
-      aria-label="Abrir playlist en YouTube"
-    >
-      ${icon('arrow')} Ver playlist
-    </a>
   </aside>
 `;

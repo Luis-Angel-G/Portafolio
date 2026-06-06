@@ -99,18 +99,16 @@ export function initMusicPlayer(): void {
   // DOM refs
   const host       = document.querySelector<HTMLDivElement>('[data-youtube-player]');
   const playBtn    = document.querySelector<HTMLButtonElement>('[data-audio-play]');
-  const muteBtn    = document.querySelector<HTMLButtonElement>('[data-audio-mute]');
   const prevBtn    = document.querySelector<HTMLButtonElement>('[data-audio-prev]');
   const nextBtn    = document.querySelector<HTMLButtonElement>('[data-audio-next]');
   const progressEl = document.querySelector<HTMLInputElement>('[data-audio-progress]');
-  const volumeEl   = document.querySelector<HTMLInputElement>('[data-audio-volume]');
   const timeCur    = document.querySelector<HTMLElement>('[data-time-current]');
   const timeDur    = document.querySelector<HTMLElement>('[data-time-duration]');
   const titleEl    = document.querySelector<HTMLElement>('[data-track-title]');
   const artistEl   = document.querySelector<HTMLElement>('[data-track-artist]');
 
-  if (!host || !playBtn || !muteBtn || !prevBtn || !nextBtn ||
-      !progressEl || !volumeEl || !timeCur || !timeDur || !titleEl || !artistEl) {
+  if (!host || !playBtn || !prevBtn || !nextBtn ||
+      !progressEl || !timeCur || !timeDur || !titleEl || !artistEl) {
     console.warn('[music] Missing DOM nodes, skipping init');
     return;
   }
@@ -130,11 +128,6 @@ export function initMusicPlayer(): void {
   function setPlayIcon(playing: boolean): void {
     playBtn!.innerHTML = icon(playing ? 'pause' : 'play');
     playBtn!.setAttribute('aria-label', playing ? 'Pausar música' : 'Reproducir música');
-  }
-
-  function setVolumeIcon(muted: boolean): void {
-    muteBtn!.innerHTML = icon(muted ? 'volumeOff' : 'volume');
-    muteBtn!.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar');
   }
 
   function setProgress(current: number, duration: number): void {
@@ -197,21 +190,6 @@ export function initMusicPlayer(): void {
     }
   }
 
-  // ── Volume helpers ─────────────────────────────────────────────────────────
-
-  function applyVolume(): void {
-    if (!player) return;
-    player.setVolume(state.volume);
-    if (state.isMuted || state.volume === 0) {
-      player.mute();
-    } else {
-      player.unMute();
-    }
-    setVolumeIcon(state.isMuted || state.volume === 0);
-    volumeEl!.value = String(state.volume);
-    volumeEl!.style.setProperty('--fill', `${state.volume}%`);
-  }
-
   // ── Event bindings ─────────────────────────────────────────────────────────
 
   playBtn.addEventListener('click', () => {
@@ -236,17 +214,6 @@ export function initMusicPlayer(): void {
     if (!player) return;
     player.nextVideo();
     window.setTimeout(syncMeta, 500);
-  });
-
-  muteBtn.addEventListener('click', () => {
-    state.isMuted = !state.isMuted;
-    applyVolume();
-  });
-
-  volumeEl.addEventListener('input', () => {
-    state.volume   = Number(volumeEl.value);
-    state.isMuted  = state.volume === 0;
-    applyVolume();
   });
 
   // Seek: start/end events to avoid fighting with the progress loop
@@ -283,7 +250,7 @@ export function initMusicPlayer(): void {
         // Load the playlist directly
         listType:   'playlist',
         list:        PLAYLIST_ID,
-        autoplay:    0,
+        autoplay:    1,
         controls:    0,
         disablekb:   1,
         fs:          0,
@@ -296,7 +263,7 @@ export function initMusicPlayer(): void {
       events: {
         onReady(e) {
           player = e.target;          // reassign to typed reference
-          applyVolume();
+          player.playVideo();
           syncMeta();
           clearProgress();
         },
