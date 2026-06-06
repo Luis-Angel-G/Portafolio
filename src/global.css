@@ -1697,3 +1697,76 @@ svg {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── YouTube hidden host ─────────────────────────────────────────────────── */
+.yt-host {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  /* Keep it in the DOM so YT IFrame API can find it, but fully invisible */
+}
+
+/* Ensure the iframe YT injects is also 1×1 */
+.yt-host iframe {
+  width: 1px !important;
+  height: 1px !important;
+}
+
+/* ─── Open-in-YouTube micro-link ──────────────────────────────────────────── */
+.yt-open-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+
+.yt-open-link:hover {
+  color: var(--cyan);
+}
+
+.yt-open-link svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* ─── Lisa token – slight refresh so it fits the ♪ glyph ─────────────────── */
+.lisa-token {
+  float: left;
+  display: grid;
+  place-items: center;
+  width: 4.1rem;
+  height: 4.1rem;
+  margin-right: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 0.45rem;
+  background:
+    linear-gradient(135deg, rgba(95, 216, 255, 0.22), rgba(255, 207, 87, 0.16)),
+    #172234;
+  color: var(--gold);
+  font-size: 1.6rem;
+}
+
+.lisa-token span {
+  display: block;
+  line-height: 1;
+  /* Animate the note when something is playing */
+}
+
+.app-shell[data-playing="true"] .lisa-token span {
+  animation: note-bounce 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes note-bounce {
+  from { transform: translateY(0)   scale(1);    }
+  to   { transform: translateY(-3px) scale(1.12); }
+}

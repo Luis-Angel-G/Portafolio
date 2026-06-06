@@ -1,70 +1,89 @@
-import { musicPlaylist } from '../data';
 import { icon } from '../icons';
 import { state } from '../state';
 import { formatTime } from '../utils';
 
-type YouTubePlayer = {
-  playVideo: () => void;
-  pauseVideo: () => void;
-  nextVideo: () => void;
-  previousVideo: () => void;
-  cuePlaylist: (playlist: string | string[], index?: number, startSeconds?: number) => void;
-  loadPlaylist: (playlist: string | string[], index?: number, startSeconds?: number) => void;
-  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
-  getCurrentTime: () => number;
-  getDuration: () => number;
-  getPlaylistIndex?: () => number;
-  getVideoData: () => { author?: string; title?: string; video_id?: string };
-  setVolume: (volume: number) => void;
-  mute: () => void;
-  unMute: () => void;
-};
+// ─── YouTube IFrame API types ────────────────────────────────────────────────
 
-type YouTubeStateEvent = {
+interface YTPlayer {
+  playVideo(): void;
+  pauseVideo(): void;
+  nextVideo(): void;
+  previousVideo(): void;
+  loadPlaylist(opts: { list: string; listType: string; index: number; startSeconds: number }): void;
+  cuePlaylist(opts: { list: string; listType: string; index: number; startSeconds: number }): void;
+  seekTo(seconds: number, allowSeekAhead: boolean): void;
+  getCurrentTime(): number;
+  getDuration(): number;
+  getPlaylistIndex(): number;
+  getVideoData(): { title?: string; author?: string; video_id?: string };
+  setVolume(volume: number): void;
+  mute(): void;
+  unMute(): void;
+  getPlayerState(): number;
+  destroy(): void;
+}
+
+interface YTEvent {
   data: number;
-};
+  target: YTPlayer;
+}
 
-type YouTubeApi = {
-  Player: new (
-    element: HTMLElement,
-    options: {
-      videoId?: string;
-      width?: string;
-      height?: string;
-      playerVars?: Record<string, string | number | boolean>;
-      events?: {
-        onReady?: () => void;
-        onStateChange?: (event: YouTubeStateEvent) => void;
-      };
-    }
-  ) => YouTubePlayer;
-  PlayerState: {
-    ENDED: number;
-    PLAYING: number;
-    PAUSED: number;
-  };
-};
+interface YTReadyEvent {
+  target: YTPlayer;
+}
 
 declare global {
   interface Window {
-    YT?: YouTubeApi;
+    YT?: {
+      Player: new (
+        elementId: string | HTMLElement,
+        options: {
+          width?: number | string;
+          height?: number | string;
+          playerVars?: Record<string, string | number | boolean>;
+          events?: {
+            onReady?: (e: YTReadyEvent) => void;
+            onStateChange?: (e: YTEvent) => void;
+            onError?: (e: YTEvent) => void;
+          };
+        }
+      ) => YTPlayer;
+      PlayerState: {
+        UNSTARTED: number;
+        ENDED: number;
+        PLAYING: number;
+        PAUSED: number;
+        BUFFERING: number;
+        CUED: number;
+      };
+    };
     onYouTubeIframeAPIReady?: () => void;
   }
 }
 
-let youtubeApiPromise: Promise<YouTubeApi> | null = null;
+// ─── Playlist ID ─────────────────────────────────────────────────────────────
+// https://youtube.com/playlist?list=PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3w
+const PLAYLIST_ID = 'PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3w';
 
-const loadYouTubeApi = () => {
-  if (window.YT?.Player) return Promise.resolve(window.YT);
+// ─── Load YouTube API once ───────────────────────────────────────────────────
+let apiReady: Promise<void> | null = null;
 
-  youtubeApiPromise ??= new Promise<YouTubeApi>((resolve) => {
-    const previousReady = window.onYouTubeIframeAPIReady;
+function loadYouTubeAPI(): Promise<void> {
+  if (apiReady) return apiReady;
+
+  apiReady = new Promise<void>((resolve) => {
+    if (window.YT?.Player) {
+      resolve();
+      return;
+    }
+
+    const prev = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
-      previousReady?.();
-      if (window.YT) resolve(window.YT);
+      prev?.();
+      resolve();
     };
 
-    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
       const script = document.createElement('script');
       script.src = 'https://www.youtube.com/iframe_api';
       script.async = true;
@@ -72,47 +91,115 @@ const loadYouTubeApi = () => {
     }
   });
 
-  return youtubeApiPromise;
-};
+  return apiReady;
+}
 
-export const initMusicPlayer = () => {
-  const host = document.querySelector<HTMLElement>('[data-youtube-player]');
-  const playButton = document.querySelector<HTMLButtonElement>('[data-audio-play]');
-  const muteButton = document.querySelector<HTMLButtonElement>('[data-audio-mute]');
-  const progress = document.querySelector<HTMLInputElement>('[data-audio-progress]');
-  const volume = document.querySelector<HTMLInputElement>('[data-audio-volume]');
-  const current = document.querySelector<HTMLElement>('[data-time-current]');
-  const duration = document.querySelector<HTMLElement>('[data-time-duration]');
-  const title = document.querySelector<HTMLElement>('[data-track-title]');
-  const artist = document.querySelector<HTMLElement>('[data-track-artist]');
+// ─── Main init ───────────────────────────────────────────────────────────────
+export function initMusicPlayer(): void {
+  // DOM refs
+  const host       = document.querySelector<HTMLDivElement>('[data-youtube-player]');
+  const playBtn    = document.querySelector<HTMLButtonElement>('[data-audio-play]');
+  const muteBtn    = document.querySelector<HTMLButtonElement>('[data-audio-mute]');
+  const prevBtn    = document.querySelector<HTMLButtonElement>('[data-audio-prev]');
+  const nextBtn    = document.querySelector<HTMLButtonElement>('[data-audio-next]');
+  const progressEl = document.querySelector<HTMLInputElement>('[data-audio-progress]');
+  const volumeEl   = document.querySelector<HTMLInputElement>('[data-audio-volume]');
+  const timeCur    = document.querySelector<HTMLElement>('[data-time-current]');
+  const timeDur    = document.querySelector<HTMLElement>('[data-time-duration]');
+  const titleEl    = document.querySelector<HTMLElement>('[data-track-title]');
+  const artistEl   = document.querySelector<HTMLElement>('[data-track-artist]');
 
-  if (!host || !playButton || !muteButton || !progress || !volume || !current || !duration || !title || !artist) return;
+  if (!host || !playBtn || !muteBtn || !prevBtn || !nextBtn ||
+      !progressEl || !volumeEl || !timeCur || !timeDur || !titleEl || !artistEl) {
+    console.warn('[music] Missing DOM nodes, skipping init');
+    return;
+  }
 
-  let player: YouTubePlayer | null = null;
-  let playerState = { ended: 0, playing: 1, paused: 2 };
+  // Create a real div element for YT to target
+  const playerDiv = document.createElement('div');
+  playerDiv.id = 'yt-iframe-target';
+  host.appendChild(playerDiv);
 
-  const updatePlayIcon = () => {
-    playButton.innerHTML = icon(state.isPlaying ? 'pause' : 'play');
-    playButton.setAttribute('aria-label', state.isPlaying ? 'Pausar musica' : 'Reproducir musica');
-  };
+  let player: YTPlayer | null = null;
+  let progressTimer: number | null = null;
+  let metaRetryTimer: number | null = null;
+  let seekingFromUser = false;
 
-  const updateTrackUi = () => {
-    if (!player) {
-      title.textContent = '';
-      artist.textContent = '';
-      duration.textContent = '0:00';
-      current.textContent = '0:00';
-      progress.value = '0';
-      progress.style.setProperty('--fill', '0%');
+  // ── UI helpers ─────────────────────────────────────────────────────────────
+
+  function setPlayIcon(playing: boolean): void {
+    playBtn!.innerHTML = icon(playing ? 'pause' : 'play');
+    playBtn!.setAttribute('aria-label', playing ? 'Pausar música' : 'Reproducir música');
+  }
+
+  function setVolumeIcon(muted: boolean): void {
+    muteBtn!.innerHTML = icon(muted ? 'volumeOff' : 'volume');
+    muteBtn!.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar');
+  }
+
+  function setProgress(current: number, duration: number): void {
+    const pct = duration > 0 ? (current / duration) * 100 : 0;
+    if (!seekingFromUser) {
+      progressEl!.value = String(pct);
+      progressEl!.style.setProperty('--fill', `${pct}%`);
+    }
+    timeCur!.textContent  = formatTime(current);
+    timeDur!.textContent  = formatTime(duration);
+  }
+
+  function clearProgress(): void {
+    progressEl!.value = '0';
+    progressEl!.style.setProperty('--fill', '0%');
+    timeCur!.textContent = '0:00';
+    timeDur!.textContent = '0:00';
+  }
+
+  // YouTube strips HTML entities and truncates titles; clean it up
+  function cleanText(raw: string | undefined): string {
+    if (!raw) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = raw;
+    return txt.value.trim();
+  }
+
+  function syncMeta(): void {
+    if (!player) return;
+    const data = player.getVideoData();
+    const t    = cleanText(data?.title);
+    const a    = cleanText(data?.author);
+
+    // getVideoData can return empty strings while YT is still loading the item;
+    // retry a few times so the title appears without user interaction.
+    if (!t) {
+      if (metaRetryTimer) clearTimeout(metaRetryTimer);
+      metaRetryTimer = window.setTimeout(syncMeta, 600);
       return;
     }
 
-    const data = player.getVideoData?.();
-    title.textContent = data?.title?.trim() || '';
-    artist.textContent = data?.author?.trim() || '';
-  };
+    titleEl!.textContent  = t || 'Sin título';
+    artistEl!.textContent = a || '';
+  }
 
-  const applyVolume = () => {
+  function startProgressLoop(): void {
+    if (progressTimer) return;
+    progressTimer = window.setInterval(() => {
+      if (!player) return;
+      const cur = player.getCurrentTime() ?? 0;
+      const dur = player.getDuration()    ?? 0;
+      setProgress(cur, dur);
+    }, 500);
+  }
+
+  function stopProgressLoop(): void {
+    if (progressTimer) {
+      clearInterval(progressTimer);
+      progressTimer = null;
+    }
+  }
+
+  // ── Volume helpers ─────────────────────────────────────────────────────────
+
+  function applyVolume(): void {
     if (!player) return;
     player.setVolume(state.volume);
     if (state.isMuted || state.volume === 0) {
@@ -120,131 +207,134 @@ export const initMusicPlayer = () => {
     } else {
       player.unMute();
     }
-    muteButton.innerHTML = icon(state.isMuted || state.volume === 0 ? 'volumeOff' : 'volume');
-    volume.style.setProperty('--fill', `${state.volume}%`);
-  };
+    setVolumeIcon(state.isMuted || state.volume === 0);
+    volumeEl!.value = String(state.volume);
+    volumeEl!.style.setProperty('--fill', `${state.volume}%`);
+  }
 
-  const syncTrackUi = () => {
+  // ── Event bindings ─────────────────────────────────────────────────────────
+
+  playBtn.addEventListener('click', () => {
     if (!player) return;
-
-    const playlistIndex = Math.max(0, player.getPlaylistIndex?.() ?? state.currentTrack);
-    state.currentTrack = playlistIndex;
-
-    const videoData = player.getVideoData?.();
-    const titleText = videoData?.title?.trim() || '';
-    const artistText = videoData?.author?.trim() || '';
-    const currentDuration = player.getDuration();
-    const safeDuration = Number.isFinite(currentDuration) && currentDuration > 0 ? currentDuration : 0;
-
-    title.textContent = titleText;
-    artist.textContent = artistText;
-    duration.textContent = formatTime(safeDuration);
-  };
-
-  const changeTrack = (offset: number) => {
-    if (!player) return;
-    if (offset > 0) {
-      player.nextVideo();
-    } else if (offset < 0) {
-      player.previousVideo();
-    }
-    syncTrackUi();
-  };
-
-  const syncProgress = () => {
-    if (!player) return;
-
-    const playerDuration = player.getDuration();
-    const safeDuration = Number.isFinite(playerDuration) && playerDuration > 0 ? playerDuration : 0;
-    const currentTime = Math.max(0, player.getCurrentTime() || 0);
-    const percent = safeDuration > 0 ? (currentTime / safeDuration) * 100 : 0;
-
-    syncTrackUi();
-    current.textContent = formatTime(currentTime);
-    duration.textContent = formatTime(safeDuration);
-    progress.value = String(percent);
-    progress.style.setProperty('--fill', `${percent}%`);
-  };
-
-  playButton.addEventListener('click', () => {
-    if (!player) {
-      return;
-    }
-
-    if (state.isPlaying) {
+    const ps = window.YT?.PlayerState;
+    if (!ps) return;
+    const s = player.getPlayerState();
+    if (s === ps.PLAYING) {
       player.pauseVideo();
-      state.isPlaying = false;
     } else {
       player.playVideo();
-      state.isPlaying = true;
     }
-
-    updatePlayIcon();
   });
 
-  document.querySelector('[data-audio-prev]')?.addEventListener('click', () => changeTrack(-1));
-  document.querySelector('[data-audio-next]')?.addEventListener('click', () => changeTrack(1));
+  prevBtn.addEventListener('click', () => {
+    if (!player) return;
+    player.previousVideo();
+    window.setTimeout(syncMeta, 500);
+  });
 
-  muteButton.addEventListener('click', () => {
+  nextBtn.addEventListener('click', () => {
+    if (!player) return;
+    player.nextVideo();
+    window.setTimeout(syncMeta, 500);
+  });
+
+  muteBtn.addEventListener('click', () => {
     state.isMuted = !state.isMuted;
     applyVolume();
   });
 
-  volume.addEventListener('input', () => {
-    state.volume = Number(volume.value);
-    state.isMuted = state.volume === 0;
+  volumeEl.addEventListener('input', () => {
+    state.volume   = Number(volumeEl.value);
+    state.isMuted  = state.volume === 0;
     applyVolume();
   });
 
-  progress.addEventListener('input', () => {
-    if (!player) return;
-    const percent = Number(progress.value);
-    const safeDuration = player.getDuration() || 0;
-    player.seekTo((percent / 100) * safeDuration, true);
-    progress.style.setProperty('--fill', `${percent}%`);
+  // Seek: start/end events to avoid fighting with the progress loop
+  progressEl.addEventListener('mousedown',  () => { seekingFromUser = true;  });
+  progressEl.addEventListener('touchstart', () => { seekingFromUser = true;  }, { passive: true });
+
+  progressEl.addEventListener('input', () => {
+    const pct = Number(progressEl.value);
+    progressEl.style.setProperty('--fill', `${pct}%`);
+    // Show live time while dragging
+    if (player) {
+      const dur = player.getDuration() ?? 0;
+      timeCur!.textContent = formatTime((pct / 100) * dur);
+    }
   });
 
-  updateTrackUi();
+  progressEl.addEventListener('change', () => {
+    if (!player) { seekingFromUser = false; return; }
+    const dur = player.getDuration() ?? 0;
+    const pct = Number(progressEl.value);
+    player.seekTo((pct / 100) * dur, true);
+    seekingFromUser = false;
+  });
 
-  void loadYouTubeApi().then((api) => {
-    playerState = {
-      ended: api.PlayerState.ENDED,
-      playing: api.PlayerState.PLAYING,
-      paused: api.PlayerState.PAUSED,
-    };
+  // ── Create YT Player ────────────────────────────────────────────────────────
 
-    player = new api.Player(host, {
-      width: '200',
-      height: '113',
+  void loadYouTubeAPI().then(() => {
+    if (!window.YT?.Player) { console.error('[music] YT API not available'); return; }
+
+    player = new window.YT.Player(playerDiv, {
+      width:  1,
+      height: 1,
       playerVars: {
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        rel: 0,
-        listType: 'playlist',
-        list: musicPlaylist.id,
-        origin: window.location.origin,
+        // Load the playlist directly
+        listType:   'playlist',
+        list:        PLAYLIST_ID,
+        autoplay:    0,
+        controls:    0,
+        disablekb:   1,
+        fs:          0,
+        rel:         0,
+        // Needed so the hidden iframe doesn't cause CORS issues
+        origin:      window.location.origin,
+        // Enable JS API
+        enablejsapi: 1,
       },
       events: {
-        onReady: () => {
+        onReady(e) {
+          player = e.target;          // reassign to typed reference
           applyVolume();
-          player?.cuePlaylist(musicPlaylist.id, 0, 0);
-          syncTrackUi();
+          syncMeta();
+          clearProgress();
         },
-        onStateChange: (event) => {
-          syncTrackUi();
-          if (event.data === playerState.playing) {
-            state.isPlaying = true;
+
+        onStateChange(e) {
+          const ps = window.YT!.PlayerState;
+          switch (e.data) {
+            case ps.PLAYING:
+              state.isPlaying = true;
+              setPlayIcon(true);
+              startProgressLoop();
+              syncMeta();
+              break;
+
+            case ps.PAUSED:
+            case ps.ENDED:
+              state.isPlaying = false;
+              setPlayIcon(false);
+              if (e.data === ps.ENDED) stopProgressLoop();
+              break;
+
+            case ps.BUFFERING:
+              // Keep play icon showing "pause" so user knows something is loading
+              break;
+
+            default:
+              break;
           }
-          if (event.data === playerState.paused) {
-            state.isPlaying = false;
+        },
+
+        onError(e) {
+          console.warn('[music] YT player error code', e.data);
+          // Skip to next on unplayable video errors (101, 150)
+          if (e.data === 101 || e.data === 150) {
+            player?.nextVideo();
           }
-          updatePlayIcon();
         },
       },
     });
   });
-
-  window.setInterval(syncProgress, 500);
-};
+}

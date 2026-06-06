@@ -103,3 +103,8 @@ export const updateProfilePanel = () => {
     current.outerHTML = renderProfileExtraPanel();
   }
 };
+
+export const updatePlayingState = (): void => {
+  document.querySelector<HTMLElement>('.app-shell')
+    ?.setAttribute('data-playing', String(state.isPlaying));
+};

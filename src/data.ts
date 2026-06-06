@@ -53,7 +53,7 @@ export const projects: Project[] = [
 ];
 
 export const musicPlaylist = {
-  id: 'PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3r',
+  id: 'PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3w',
 };
 
 export const avatars: Avatar[] = [
