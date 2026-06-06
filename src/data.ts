@@ -1,4 +1,4 @@
-import type { Avatar, CareerEntry, MusicTrack, Project, SectionId } from './types';
+import type { Avatar, CareerEntry, Project, SectionId } from './types';
 
 export const navItems: { id: SectionId; label: string }[] = [
   { id: 'proyectos', label: 'Proyectos' },
@@ -52,19 +52,9 @@ export const projects: Project[] = [
   },
 ];
 
-export const musicTracks: MusicTrack[] = [
-  { title: 'Self aware', artist: 'Tamper City', videoId: 'wmMmfNNk11I', duration: 181 },
-  { title: 'Mutt', artist: 'Leon Thomas', videoId: 'f8X8v8F4qPI', duration: 194 },
-  { title: 'From Time', artist: 'Drake', videoId: 'CikjiSG8eRM', duration: 323 },
-  { title: 'Chicago', artist: 'Michael Jackson', videoId: 'VT6NZBVguDM', duration: 246 },
-  { title: 'Hvn on earth', artist: 'Lil Tecca', videoId: 'NSCZ5awmH1U', duration: 189 },
-  { title: 'Instant Crush', artist: 'Daft Punk', videoId: '1hA9vyUeKRs', duration: 340 },
-  { title: 'The Color Violet', artist: 'Tory Lanez', videoId: '07fhkAoCnig', duration: 253 },
-  { title: 'Disenchanted', artist: 'My Chemical Romance', videoId: 'x7g1ppGE1Xs', duration: 295 },
-  { title: 'Circles', artist: 'Pierce The Veil', videoId: 'ucN-iv4QVWw', duration: 315 },
-  { title: 'Me Quieres Mal', artist: 'Jesse Baez', videoId: 'x_xX3NvrHl0', duration: 219 },
-  { title: 'En el Suelo', artist: 'Kidd Voodoo', videoId: 'kbOghDaL_h0', duration: 266 },
-];
+export const musicPlaylist = {
+  id: 'PLRpXyUQM3FyxbC8MtCoYVdo3qCQtfh-3r',
+};
 
 export const avatars: Avatar[] = [
   {

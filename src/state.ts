@@ -11,7 +11,6 @@ export const state = {
   isPlaying: false,
   isMuted: false,
   volume: 72,
-  playlistStatus: 'YouTube playlist',
   projectListOpen: false,
   profilePanel: 'none' as ProfilePanel,
 };

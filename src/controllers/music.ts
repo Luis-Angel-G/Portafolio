@@ -1,4 +1,4 @@
-import { musicTracks } from '../data';
+import { musicPlaylist } from '../data';
 import { icon } from '../icons';
 import { state } from '../state';
 import { formatTime } from '../utils';
@@ -6,11 +6,15 @@ import { formatTime } from '../utils';
 type YouTubePlayer = {
   playVideo: () => void;
   pauseVideo: () => void;
-  cueVideoById: (videoId: string) => void;
-  loadVideoById: (videoId: string) => void;
+  nextVideo: () => void;
+  previousVideo: () => void;
+  cuePlaylist: (playlist: string | string[], index?: number, startSeconds?: number) => void;
+  loadPlaylist: (playlist: string | string[], index?: number, startSeconds?: number) => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
   getCurrentTime: () => number;
   getDuration: () => number;
+  getPlaylistIndex?: () => number;
+  getVideoData: () => { author?: string; title?: string; video_id?: string };
   setVolume: (volume: number) => void;
   mute: () => void;
   unMute: () => void;
@@ -24,10 +28,10 @@ type YouTubeApi = {
   Player: new (
     element: HTMLElement,
     options: {
-      videoId: string;
+      videoId?: string;
       width?: string;
       height?: string;
-      playerVars?: Record<string, number>;
+      playerVars?: Record<string, string | number | boolean>;
       events?: {
         onReady?: () => void;
         onStateChange?: (event: YouTubeStateEvent) => void;
@@ -81,17 +85,11 @@ export const initMusicPlayer = () => {
   const duration = document.querySelector<HTMLElement>('[data-time-duration]');
   const title = document.querySelector<HTMLElement>('[data-track-title]');
   const artist = document.querySelector<HTMLElement>('[data-track-artist]');
-  const status = document.querySelector<HTMLElement>('[data-playlist-status]');
 
-  if (!host || !playButton || !muteButton || !progress || !volume || !current || !duration || !title || !artist || !status) return;
+  if (!host || !playButton || !muteButton || !progress || !volume || !current || !duration || !title || !artist) return;
 
   let player: YouTubePlayer | null = null;
   let playerState = { ended: 0, playing: 1, paused: 2 };
-
-  const setPlaylistStatus = (value: string) => {
-    state.playlistStatus = value;
-    status.textContent = value;
-  };
 
   const updatePlayIcon = () => {
     playButton.innerHTML = icon(state.isPlaying ? 'pause' : 'play');
@@ -99,13 +97,19 @@ export const initMusicPlayer = () => {
   };
 
   const updateTrackUi = () => {
-    const track = musicTracks[state.currentTrack];
-    title.textContent = track.title;
-    artist.textContent = track.artist;
-    duration.textContent = formatTime(track.duration);
-    current.textContent = '0:00';
-    progress.value = '0';
-    progress.style.setProperty('--fill', '0%');
+    if (!player) {
+      title.textContent = '';
+      artist.textContent = '';
+      duration.textContent = '0:00';
+      current.textContent = '0:00';
+      progress.value = '0';
+      progress.style.setProperty('--fill', '0%');
+      return;
+    }
+
+    const data = player.getVideoData?.();
+    title.textContent = data?.title?.trim() || '';
+    artist.textContent = data?.author?.trim() || '';
   };
 
   const applyVolume = () => {
@@ -120,34 +124,42 @@ export const initMusicPlayer = () => {
     volume.style.setProperty('--fill', `${state.volume}%`);
   };
 
-  const loadTrack = (shouldPlay = state.isPlaying) => {
-    const track = musicTracks[state.currentTrack];
-    updateTrackUi();
+  const syncTrackUi = () => {
     if (!player) return;
-    if (shouldPlay) {
-      player.loadVideoById(track.videoId);
-      state.isPlaying = true;
-    } else {
-      player.cueVideoById(track.videoId);
-      state.isPlaying = false;
-    }
-    updatePlayIcon();
+
+    const playlistIndex = Math.max(0, player.getPlaylistIndex?.() ?? state.currentTrack);
+    state.currentTrack = playlistIndex;
+
+    const videoData = player.getVideoData?.();
+    const titleText = videoData?.title?.trim() || '';
+    const artistText = videoData?.author?.trim() || '';
+    const currentDuration = player.getDuration();
+    const safeDuration = Number.isFinite(currentDuration) && currentDuration > 0 ? currentDuration : 0;
+
+    title.textContent = titleText;
+    artist.textContent = artistText;
+    duration.textContent = formatTime(safeDuration);
   };
 
   const changeTrack = (offset: number) => {
-    state.currentTrack = (state.currentTrack + musicTracks.length + offset) % musicTracks.length;
-    loadTrack();
+    if (!player) return;
+    if (offset > 0) {
+      player.nextVideo();
+    } else if (offset < 0) {
+      player.previousVideo();
+    }
+    syncTrackUi();
   };
 
   const syncProgress = () => {
     if (!player) return;
 
-    const track = musicTracks[state.currentTrack];
     const playerDuration = player.getDuration();
-    const safeDuration = Number.isFinite(playerDuration) && playerDuration > 0 ? playerDuration : track.duration;
+    const safeDuration = Number.isFinite(playerDuration) && playerDuration > 0 ? playerDuration : 0;
     const currentTime = Math.max(0, player.getCurrentTime() || 0);
     const percent = safeDuration > 0 ? (currentTime / safeDuration) * 100 : 0;
 
+    syncTrackUi();
     current.textContent = formatTime(currentTime);
     duration.textContent = formatTime(safeDuration);
     progress.value = String(percent);
@@ -156,7 +168,6 @@ export const initMusicPlayer = () => {
 
   playButton.addEventListener('click', () => {
     if (!player) {
-      setPlaylistStatus('Cargando YouTube');
       return;
     }
 
@@ -188,13 +199,12 @@ export const initMusicPlayer = () => {
   progress.addEventListener('input', () => {
     if (!player) return;
     const percent = Number(progress.value);
-    const safeDuration = player.getDuration() || musicTracks[state.currentTrack].duration;
+    const safeDuration = player.getDuration() || 0;
     player.seekTo((percent / 100) * safeDuration, true);
     progress.style.setProperty('--fill', `${percent}%`);
   });
 
   updateTrackUi();
-  setPlaylistStatus('Cargando YouTube');
 
   void loadYouTubeApi().then((api) => {
     playerState = {
@@ -206,28 +216,29 @@ export const initMusicPlayer = () => {
     player = new api.Player(host, {
       width: '200',
       height: '113',
-      videoId: musicTracks[state.currentTrack].videoId,
       playerVars: {
         autoplay: 0,
         controls: 0,
         disablekb: 1,
         fs: 0,
         rel: 0,
+        listType: 'playlist',
+        list: musicPlaylist.id,
+        origin: window.location.origin,
       },
       events: {
         onReady: () => {
           applyVolume();
-          setPlaylistStatus('YouTube listo');
+          player?.cuePlaylist(musicPlaylist.id, 0, 0);
+          syncTrackUi();
         },
         onStateChange: (event) => {
+          syncTrackUi();
           if (event.data === playerState.playing) {
             state.isPlaying = true;
           }
           if (event.data === playerState.paused) {
             state.isPlaying = false;
-          }
-          if (event.data === playerState.ended) {
-            changeTrack(1);
           }
           updatePlayIcon();
         },
