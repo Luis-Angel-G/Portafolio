@@ -171,13 +171,16 @@ const icon = (name: string) =>
 
 const tagRow = (items: string[]) => items.map((item) => `<span>${item}</span>`).join('');
 
+const screenClass = (id: SectionId, extra = '') =>
+  `screen ${extra} ${state.activeSection === id ? 'active-screen' : ''}`.trim();
+
 const renderShell = () => {
   const project = projects[state.selectedProject];
   const avatar = avatars[state.selectedAvatar];
   const track = tracks[state.currentTrack];
 
   root.innerHTML = `
-    <main class="app-shell">
+    <main class="app-shell" data-active-section="${state.activeSection}">
       <header class="top-nav">
         <nav aria-label="Navegacion principal">
           ${navItems
@@ -196,12 +199,13 @@ const renderShell = () => {
         <div>${icon('wifi')}<strong>Vite</strong><small>Conexion</small></div>
       </aside>
 
-      <section id="proyectos" class="screen lobby-screen">
+      <div class="background-layer" aria-hidden="true">
+        <img src="./assets/backgrounds/lobby-energy-stadium.png" alt="">
+        <span class="background-vignette"></span>
+      </div>
+
+      <section id="proyectos" data-section="proyectos" class="${screenClass('proyectos', 'lobby-screen')}">
         <div id="lobby" class="lobby-anchor"></div>
-        <div class="background-layer" aria-hidden="true">
-          <img src="./assets/backgrounds/lobby-energy-stadium.png" alt="">
-          <span class="background-vignette"></span>
-        </div>
 
         <div class="visitor-counter" aria-label="Contador de visitantes">
           ${icon('users')}
@@ -247,10 +251,10 @@ const renderShell = () => {
           </div>
         </aside>
 
-        <button class="scroll-cue" type="button" data-scroll="who-i-am"><span>Scroll para explorar</span><i></i></button>
+        <button class="scroll-cue" type="button" data-scroll="who-i-am"><span>Click para explorar</span><i></i></button>
       </section>
 
-      <section id="who-i-am" class="screen profile-screen section-grid">
+      <section id="who-i-am" data-section="who-i-am" class="${screenClass('who-i-am', 'profile-screen section-grid')}">
         <div class="panel-title">
           <p class="eyebrow">Taquilla del portafolio</p>
           <h2>Who I Am</h2>
@@ -290,42 +294,89 @@ const renderShell = () => {
         </article>
       </section>
 
-      <section id="misiones" class="screen missions-screen section-grid">
-        <div class="panel-title wide">
-          <p class="eyebrow">Misiones de recorrido</p>
-          <h2>Misiones</h2>
-          <p>Completa el tour del portafolio: revisa el lobby, conoce al desarrollador, selecciona un proyecto y termina en el camino profesional.</p>
+      <section id="misiones" data-section="misiones" class="${screenClass('misiones', 'missions-screen')}">
+        <div class="mission-layout">
+          <aside class="mission-tabs" aria-label="Categorias de misiones">
+            <button class="active" type="button" aria-label="Misiones principales">XP</button>
+            <button type="button" aria-label="Buscar misiones">${icon('arrow')}</button>
+            <button type="button" aria-label="Recompensas">PE</button>
+          </aside>
+
+          <div class="mission-board">
+            <div class="panel-title wide">
+              <p class="eyebrow">Islas de creadores</p>
+              <h2>Semanales</h2>
+              <p>Explora las facetas del portafolio como una lista de objetivos: proyectos, perfil, seleccion de avatar y ruta profesional.</p>
+            </div>
+
+            <div class="mission-category">
+              <span>Misiones de desarrollo</span>
+            </div>
+
+            <div class="mission-list">
+              ${missionCard('Ver proyectos destacados', 'Fase 1 de 4', '5K PE', 'Entrar', 'proyectos', 100, '2 / 3 proyectos')}
+              ${missionCard('Leer perfil de desarrollador', 'Fase 2 de 4', '7K PE', 'Abrir perfil', 'who-i-am', 40, 'Completar para XP')}
+              ${missionCard('Seleccionar una skin', 'Fase 3 de 4', '10K PE', 'Ir a perfil', 'who-i-am', 65, 'Avatar listo')}
+              ${missionCard('Revisar Mi Camino a Unreal', 'Mision final', 'Badge Unreal', 'Ver carrera', 'carrera', 30, 'Mision final')}
+            </div>
+          </div>
+
+          <aside class="mission-summary">
+            <div>
+              <p class="eyebrow">Progreso de temporada</p>
+              <strong data-season-progress>25%</strong>
+              <span>Secciones descubiertas</span>
+            </div>
+            <div class="meter"><i data-season-meter style="width: 25%"></i></div>
+            <div class="level-ring" aria-label="Nivel del portafolio">
+              <span>Nivel</span>
+              <strong>220</strong>
+            </div>
+          </aside>
         </div>
-        <div class="mission-list">
-          ${missionCard('Aterriza en Proyectos', 'Fase 1 de 4', '5K PE', 'Ir al lobby', 'proyectos', 100)}
-          ${missionCard('Desbloquea Who I Am', 'Fase 2 de 4', '7K PE', 'Ver perfil', 'who-i-am', 40)}
-          ${missionCard('Elige un proyecto', 'Fase 3 de 4', '10K PE', 'Ver previews', 'project-previews', 65)}
-          ${missionCard('Revisa Mi Camino a Unreal', 'Mision final', 'Badge Unreal', 'Ir a carrera', 'carrera', 30)}
-        </div>
-        <aside class="mission-summary">
-          <p class="eyebrow">Progreso de temporada</p>
-          <strong data-season-progress>25%</strong>
-          <span>Secciones descubiertas</span>
-          <div class="meter"><i data-season-meter style="width: 25%"></i></div>
-        </aside>
       </section>
 
-      <section id="carrera" class="screen career-screen">
-        <div class="career-header">
-          <p class="eyebrow">Carrera</p>
-          <h2>Mi Camino a Unreal</h2>
-          <p>Ruta preparada para explicar estudios, decisiones tecnicas y el objetivo de entrar al mundo de experiencias interactivas y videojuegos.</p>
-        </div>
-        <div class="career-track">
-          ${career.map((item) => `<article class="career-card"><span>${item.year}</span><h3>${item.title}</h3><p>${item.text}</p></article>`).join('')}
-        </div>
-        <div class="skill-board">
-          ${skills
-            .map(
-              ([name, value]) =>
-                `<div class="skill-row"><span>${name}</span><div class="meter"><i style="width: ${value}%"></i></div><strong>LVL ${value}</strong></div>`
-            )
-            .join('')}
+      <section id="carrera" data-section="carrera" class="${screenClass('carrera', 'career-screen')}">
+        <div class="career-layout">
+          <div class="career-main">
+            <div class="career-header">
+              <p class="eyebrow">Carrera</p>
+              <h2>Mi Camino a Unreal</h2>
+              <p>Ruta preparada para explicar estudios, decisiones tecnicas y el objetivo de crecer hacia experiencias interactivas, videojuegos y narrativa jugable.</p>
+            </div>
+
+            <div class="season-track">
+              <div class="meter"><i style="width: 75%"></i></div>
+              <span>Progreso de temporada</span>
+              <strong>75% completado</strong>
+            </div>
+
+            <div class="career-track">
+              ${career.map((item, index) => `<article class="career-card ${index === 0 ? 'featured' : ''}"><span>${item.year}</span><h3>${item.title}</h3><p>${item.text}</p></article>`).join('')}
+            </div>
+
+            <div class="skill-board">
+              <h3>Skill Proficiency</h3>
+              ${skills
+                .map(
+                  ([name, value]) =>
+                    `<div class="skill-row"><span>${name}</span><div class="meter"><i style="width: ${value}%"></i></div><strong>LVL ${value}</strong></div>`
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <aside class="career-summary">
+            <div class="rank-badge" aria-hidden="true">UR</div>
+            <p class="eyebrow">N. 1 personal</p>
+            <h3>Unreal</h3>
+            <strong>Developer Journey</strong>
+            <div class="career-stats">
+              <span><small>Win Rate</small><b>98.5%</b></span>
+              <span><small>K/D Ratio</small><b>12.4</b></span>
+              <span><small>XP</small><b>15.2K</b></span>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -365,18 +416,41 @@ const missionCard = (
   reward: string,
   actionLabel: string,
   target: string,
-  progress: number
+  progress: number,
+  progressLabel: string
 ) => `
-  <article class="mission-card">
-    <div><span>${phase}</span><h3>${title}</h3><div class="meter"><i data-mission-meter="${target}" style="width: ${progress}%"></i></div></div>
-    <strong>${reward}</strong>
+  <article class="mission-card ${progress >= 100 ? 'complete' : ''}">
+    <div class="mission-copy">
+      <span>${phase}</span>
+      <h3>${title}</h3>
+      <div class="meter"><i data-mission-meter="${target}" style="width: ${progress}%"></i><b>${progressLabel}</b></div>
+    </div>
+    <div class="mission-reward" aria-label="Recompensa">
+      <strong>XP</strong>
+      <span>${reward}</span>
+    </div>
     <button type="button" data-scroll="${target}">${actionLabel}</button>
   </article>
 `;
 
 const scrollToTarget = (target: string) => {
-  const section = document.getElementById(target);
-  section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!navItems.some((item) => item.id === target)) {
+    return;
+  }
+
+  state.activeSection = target as SectionId;
+  state.visitedSections.add(state.activeSection);
+  updateNav();
+  updateVisibleScreens();
+  updateSeasonProgress();
+};
+
+const updateVisibleScreens = () => {
+  document.querySelector<HTMLElement>('.app-shell')?.setAttribute('data-active-section', state.activeSection);
+
+  document.querySelectorAll<HTMLElement>('[data-section]').forEach((section) => {
+    section.classList.toggle('active-screen', section.id === state.activeSection);
+  });
 };
 
 const updateNav = () => {
@@ -424,7 +498,7 @@ const updateProject = (index: number) => {
     button.classList.toggle('active', Number(button.dataset.project) === state.selectedProject);
   });
   updateSeasonProgress();
-  document.getElementById('lobby')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  scrollToTarget('proyectos');
 };
 
 const updateAvatar = (index: number) => {
@@ -613,27 +687,6 @@ const bindInteractions = () => {
 
   document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((button) => {
     button.addEventListener('click', () => updateAvatar(Number(button.dataset.avatar)));
-  });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
-      const id = visible.target.id as SectionId;
-      if (!navItems.some((item) => item.id === id)) return;
-      state.activeSection = id;
-      state.visitedSections.add(id);
-      updateNav();
-      updateSeasonProgress();
-    },
-    { rootMargin: '-25% 0px -50% 0px', threshold: [0.2, 0.35, 0.5] }
-  );
-
-  navItems.forEach((item) => {
-    const section = document.getElementById(item.id);
-    if (section) observer.observe(section);
   });
 };
 
