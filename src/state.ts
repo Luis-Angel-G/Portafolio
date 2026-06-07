@@ -12,5 +12,6 @@ export const state = {
   isMuted: false,
   volume: 72,
   projectListOpen: false,
-  profilePanel: 'none' as ProfilePanel,
+  // per-avatar panel state: index -> panel ('none' | 'skills' | 'tech')
+  profilePanels: {} as Record<number, ProfilePanel>,
 };

@@ -3,7 +3,9 @@ import { state } from '../state';
 import { screenClass, tagRow } from '../utils';
 
 export const renderProfileExtraPanel = () => {
-  if (state.profilePanel === 'skills') {
+  const current = state.profilePanels?.[state.selectedAvatar] ?? 'none';
+
+  if (current === 'skills') {
     return `
       <div class="profile-extra-panel open" data-profile-extra>
         <p class="eyebrow">Habilidades</p>
@@ -14,7 +16,7 @@ export const renderProfileExtraPanel = () => {
     `;
   }
 
-  if (state.profilePanel === 'tech') {
+  if (current === 'tech') {
     return `
       <div class="profile-extra-panel open" data-profile-extra>
         <p class="eyebrow">Tech stack</p>
@@ -63,8 +65,8 @@ export const ProfileScreen = () => {
           ${avatar.stats.map((stat, index) => `<span><strong data-profile-stat-value="${index}">${stat.value}</strong><em data-profile-stat-label="${index}">${stat.label}</em></span>`).join('')}
         </div>
         <div class="profile-actions" aria-label="Paneles del perfil">
-          <button type="button" data-profile-panel="skills" class="${state.profilePanel === 'skills' ? 'active' : ''}">Habilidades</button>
-          <button type="button" data-profile-panel="tech" class="${state.profilePanel === 'tech' ? 'active' : ''}">Tech Stack</button>
+          <button type="button" data-profile-panel="skills" class="${(state.profilePanels?.[state.selectedAvatar] ?? 'none') === 'skills' ? 'active' : ''}">Habilidades</button>
+          <button type="button" data-profile-panel="tech" class="${(state.profilePanels?.[state.selectedAvatar] ?? 'none') === 'tech' ? 'active' : ''}">Tech Stack</button>
         </div>
         ${renderProfileExtraPanel()}
         <div class="profile-links">

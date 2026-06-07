@@ -91,17 +91,18 @@ export const updateAvatar = () => {
     if (value) value.textContent = stat.value;
     if (label) label.textContent = stat.label;
   });
+  // ensure profile panel UI reflects the selected avatar's panel state
+  updateProfilePanel();
 };
 
 export const updateProfilePanel = () => {
+  const current = state.profilePanels?.[state.selectedAvatar] ?? 'none';
   document.querySelectorAll<HTMLElement>('[data-profile-panel]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.profilePanel === state.profilePanel);
+    button.classList.toggle('active', button.dataset.profilePanel === current);
   });
 
-  const current = document.querySelector<HTMLElement>('[data-profile-extra]');
-  if (current) {
-    current.outerHTML = renderProfileExtraPanel();
-  }
+  const currentNode = document.querySelector<HTMLElement>('[data-profile-extra]');
+  if (currentNode) currentNode.outerHTML = renderProfileExtraPanel();
 };
 
 export const updatePlayingState = (): void => {

@@ -11,6 +11,7 @@ export const bindProfile = () => {
     button.addEventListener('click', () => {
       state.selectedAvatar = Math.max(0, Math.min(avatars.length - 1, Number(button.dataset.avatar)));
       updateAvatar();
+      updateProfilePanel();
       updateSeasonProgress();
     });
   });
@@ -19,7 +20,9 @@ export const bindProfile = () => {
     button.addEventListener('click', () => {
       if (!isProfilePanel(button.dataset.profilePanel)) return;
 
-      state.profilePanel = state.profilePanel === button.dataset.profilePanel ? 'none' : button.dataset.profilePanel;
+      const idx = state.selectedAvatar;
+      const current = state.profilePanels[idx] ?? 'none';
+      state.profilePanels[idx] = current === button.dataset.profilePanel ? 'none' : (button.dataset.profilePanel as Exclude<ProfilePanel, 'none'>);
       updateProfilePanel();
       updateSeasonProgress();
     });
