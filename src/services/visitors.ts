@@ -1,16 +1,12 @@
 import { state } from '../state';
 import { asRecord, getVisitorApiUrl, readNumber } from '../utils';
-import { updateVisitorText } from './domUpdates';
-
-// ─── Shared helpers ───────────────────────────────────────────────────────────
+import { updateVisitorText } from '../controllers/domUpdates';
 
 const setVisitorCount = (count: number, status: string) => {
   state.visitorCount = Math.max(0, Math.round(count));
   state.visitorStatus = status;
   updateVisitorText();
 };
-
-// ─── API mode (when VITE_VISITOR_API_URL is set) ─────────────────────────────
 
 const initVisitorApi = (apiUrl: string) => {
   const baseUrl = apiUrl.replace(/\/$/, '');
@@ -36,26 +32,10 @@ const initVisitorApi = (apiUrl: string) => {
   void register().then(readCount).catch(() => setVisitorCount(0, 'SIN CONEXIÓN'));
 };
 
-// ─── Local mode (no API — uses localStorage as shared counter) ────────────────
-//
-// Strategy:
-//   • Each unique browser gets a UUID stored in localStorage under
-//     'victory-grid-uid'. This persists across sessions (unlike sessionStorage).
-//   • A separate key 'victory-grid-total' holds an integer: the highest
-//     uid-index ever seen. Each new uid increments it.
-//   • Result: the counter climbs every time a genuinely new visitor opens the
-//     page, and never goes down. Existing visitors don't add to the count on
-//     repeat visits.
-//
-// Limitation: local-only — each browser has its own counter, so the number
-// won't sync across devices. To get a real cross-device total you'd need a
-// small backend (Supabase, KV, etc.). This is the best we can do client-only.
-
 const initLocalVisitors = () => {
   const UID_KEY   = 'victory-grid-uid';
   const TOTAL_KEY = 'victory-grid-total';
 
-  // Get or create a stable uid for this browser
   let uid = window.localStorage.getItem(UID_KEY);
   const isNewVisitor = !uid;
   if (!uid) {
@@ -63,7 +43,6 @@ const initLocalVisitors = () => {
     window.localStorage.setItem(UID_KEY, uid);
   }
 
-  // Read current total
   const storedTotal = parseInt(window.localStorage.getItem(TOTAL_KEY) ?? '0', 10);
   const currentTotal = Number.isFinite(storedTotal) && storedTotal > 0 ? storedTotal : 0;
 
@@ -75,8 +54,6 @@ const initLocalVisitors = () => {
 
   setVisitorCount(newTotal, 'VISITANTES');
 
-  // Listen for updates from other tabs / windows (different browsers won't
-  // trigger this, but multiple tabs in the same browser will stay in sync)
   window.addEventListener('storage', (event) => {
     if (event.key === TOTAL_KEY && event.newValue) {
       const updated = parseInt(event.newValue, 10);
@@ -86,8 +63,6 @@ const initLocalVisitors = () => {
     }
   });
 };
-
-// ─── Entry point ─────────────────────────────────────────────────────────────
 
 export const initVisitors = () => {
   const visitorApiUrl = getVisitorApiUrl();

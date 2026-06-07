@@ -1,6 +1,5 @@
-// src/controllers/githubStats.ts
-// Fetches public GitHub stats for Luis-Angel-G + all owned orgs and injects
-// them into the career screen. No token required — public API (60 req/hr per IP).
+// src/services/github.ts
+// Fetches public GitHub stats and injects them into the career screen.
 
 const USERNAME = 'Luis-Angel-G';
 
@@ -26,7 +25,6 @@ interface GHRepo {
   fork: boolean;
 }
 
-// Language colors matching GitHub's linguist palette
 const LANG_COLORS: Record<string, string> = {
   Java:             '#b07219',
   TypeScript:       '#3178c6',
@@ -66,7 +64,6 @@ export async function initGithubStats(): Promise<void> {
   if (!container) return;
 
   try {
-    // ── Fetch user + all sources in parallel ─────────────────────────────────
     const [userRes, ...repoSources] = await Promise.all([
       fetch(`https://api.github.com/users/${USERNAME}`, { cache: 'no-store' }),
       fetchRepos(`https://api.github.com/users/${USERNAME}/repos?per_page=100`),
@@ -78,16 +75,13 @@ export async function initGithubStats(): Promise<void> {
     if (!userRes.ok) throw new Error('GitHub user API error');
     const user: GHUser = await userRes.json() as GHUser;
 
-    // ── Merge all repos ───────────────────────────────────────────────────────
     const allRepos: GHRepo[] = (repoSources as GHRepo[][]).flat();
     const ownRepos = allRepos.filter((r) => !r.fork);
 
     const totalStars = ownRepos.reduce((s, r) => s + r.stargazers_count, 0);
     const totalRepos = user.public_repos + ORGS.reduce((sum, _) => sum, 0);
-    // Use actual count of fetched repos for the display (more accurate across orgs)
     const displayRepos = allRepos.length;
 
-    // ── Language breakdown ────────────────────────────────────────────────────
     const langCount: Record<string, number> = {};
     for (const repo of ownRepos) {
       if (repo.language) langCount[repo.language] = (langCount[repo.language] ?? 0) + 1;
@@ -95,7 +89,6 @@ export async function initGithubStats(): Promise<void> {
     const sortedLangs = Object.entries(langCount).sort((a, b) => b[1] - a[1]);
     const totalWithLang = sortedLangs.reduce((s, [, c]) => s + c, 0);
 
-    // ── Animate counters ──────────────────────────────────────────────────────
     const repoEl      = container.querySelector<HTMLElement>('[data-gh-repos]');
     const starsEl     = container.querySelector<HTMLElement>('[data-gh-stars]');
     const followersEl = container.querySelector<HTMLElement>('[data-gh-followers]');
@@ -104,7 +97,6 @@ export async function initGithubStats(): Promise<void> {
     if (starsEl)     animateCount(starsEl,     totalStars);
     if (followersEl) animateCount(followersEl, user.followers);
 
-    // ── Language bars ─────────────────────────────────────────────────────────
     const barList = container.querySelector<HTMLElement>('[data-gh-langs]');
     if (barList && sortedLangs.length) {
       barList.innerHTML = sortedLangs
@@ -124,7 +116,6 @@ export async function initGithubStats(): Promise<void> {
         .join('');
     }
 
-    // ── Org count badge ───────────────────────────────────────────────────────
     const orgEl = container.querySelector<HTMLElement>('[data-gh-orgs]');
     if (orgEl) animateCount(orgEl, ORGS.length);
 

@@ -3,9 +3,9 @@ import { initMusicPlayer } from './music';
 import { bindProfile } from './profile';
 import { bindProjects } from './projects';
 import { initThreeEnergy } from './threeEnergy';
-import { initVisitors } from './visitors';
+import { initVisitors } from '../services/visitors';
 import { initPerfMeter } from '../components/status';
-import { initGithubStats } from './githubStats';
+import { initGithubStats } from '../services/github';
 
 export const bootApp = () => {
   bindNavigation();

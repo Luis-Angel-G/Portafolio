@@ -55,3 +55,19 @@ export type MissionProgress = {
 
 // 'skills' → 'facts'
 export type ProfilePanel = 'none' | 'facts' | 'tech';
+
+export type AppState = {
+  activeSection: SectionId;
+  selectedProject: number;
+  selectedAvatar: number;
+  visitorCount: number;
+  visitorStatus: string;
+  visitedSections: Set<SectionId>;
+  currentTrack: number;
+  isPlaying: boolean;
+  isMuted: boolean;
+  volume: number;
+  projectListOpen: boolean;
+  projectRowsVisible?: number;
+  profilePanels: Record<number, ProfilePanel>;
+};

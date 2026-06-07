@@ -54,26 +54,26 @@ function getTotalRows(): number {
 // ─── State helpers ────────────────────────────────────────────────────────────
 
 function rows(): number {
-  return ((state as any).projectRowsVisible as number) || 0;
+  return state.projectRowsVisible ?? 0;
 }
 
 function openRows(n: number) {
   const maxRows = getTotalRows();
-  (state as any).projectRowsVisible = Math.min(Math.max(n, 0), maxRows);
-  state.projectListOpen = (state as any).projectRowsVisible > 0;
-  applyRowVisibility((state as any).projectRowsVisible);
+  state.projectRowsVisible = Math.min(Math.max(n, 0), maxRows);
+  state.projectListOpen = (state.projectRowsVisible ?? 0) > 0;
+  applyRowVisibility(state.projectRowsVisible ?? 0);
   updateProjectList();
   updateSeasonProgress();
   // Toggle a class when fully opened so CSS can remove the fade/mask
   const listEl = document.querySelector<HTMLElement>('.project-float-list');
   if (listEl) {
-    if ((state as any).projectRowsVisible >= maxRows) listEl.classList.add('full-open');
+    if ((state.projectRowsVisible ?? 0) >= maxRows) listEl.classList.add('full-open');
     else listEl.classList.remove('full-open');
   }
 }
 
 function closeList() {
-  (state as any).projectRowsVisible = 0;
+  state.projectRowsVisible = 0;
   state.projectListOpen = false;
   applyRowVisibility(0);
   updateProjectList();
@@ -95,7 +95,7 @@ const selectProject = (index: number) => {
 // ─── Bind ─────────────────────────────────────────────────────────────────────
 
 export const bindProjects = () => {
-  (state as any).projectRowsVisible = 0;
+  state.projectRowsVisible = 0;
 
   const THRESHOLD  = 18;  // minimum wheel delta to register a step
   const COOLDOWN   = 300; // ms between steps

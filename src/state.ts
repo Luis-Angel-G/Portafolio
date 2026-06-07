@@ -1,7 +1,7 @@
-import type { ProfilePanel, SectionId } from './types';
+import type { ProfilePanel, SectionId, AppState } from './types';
 
-export const state = {
-  activeSection: 'proyectos' as SectionId,
+export const state: AppState = {
+  activeSection: 'proyectos',
   selectedProject: 0,
   selectedAvatar: 0,
   visitorCount: 0,
@@ -12,6 +12,8 @@ export const state = {
   isMuted: false,
   volume: 72,
   projectListOpen: false,
-  // per-avatar panel state: index -> panel ('none' | 'skills' | 'tech')
+  // row visibility for project list (0 = closed)
+  projectRowsVisible: 0,
+  // per-avatar panel state: index -> panel ('none' | 'facts' | 'tech')
   profilePanels: {} as Record<number, ProfilePanel>,
 };
