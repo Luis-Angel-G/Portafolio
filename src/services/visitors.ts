@@ -1,10 +1,9 @@
-import { state } from '../state';
+import { state, setState } from '../state';
 import { asRecord, getVisitorApiUrl, readNumber } from '../utils';
 import { updateVisitorText } from '../controllers/domUpdates';
 
 const setVisitorCount = (count: number, status: string) => {
-  state.visitorCount = Math.max(0, Math.round(count));
-  state.visitorStatus = status;
+  setState({ visitorCount: Math.max(0, Math.round(count)), visitorStatus: status });
   updateVisitorText();
 };
 

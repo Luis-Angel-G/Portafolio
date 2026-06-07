@@ -1,5 +1,5 @@
 import { projects } from '../data';
-import { state } from '../state';
+import { state, setState } from '../state';
 import { updateProjectDetails, updateProjectList, updateSeasonProgress } from './domUpdates';
 import { scrollToTarget } from './navigation';
 
@@ -59,22 +59,21 @@ function rows(): number {
 
 function openRows(n: number) {
   const maxRows = getTotalRows();
-  state.projectRowsVisible = Math.min(Math.max(n, 0), maxRows);
-  state.projectListOpen = (state.projectRowsVisible ?? 0) > 0;
-  applyRowVisibility(state.projectRowsVisible ?? 0);
+  const newRows = Math.min(Math.max(n, 0), maxRows);
+  setState({ projectRowsVisible: newRows, projectListOpen: newRows > 0 });
+  applyRowVisibility(newRows);
   updateProjectList();
   updateSeasonProgress();
   // Toggle a class when fully opened so CSS can remove the fade/mask
   const listEl = document.querySelector<HTMLElement>('.project-float-list');
   if (listEl) {
-    if ((state.projectRowsVisible ?? 0) >= maxRows) listEl.classList.add('full-open');
+    if (newRows >= maxRows) listEl.classList.add('full-open');
     else listEl.classList.remove('full-open');
   }
 }
 
 function closeList() {
-  state.projectRowsVisible = 0;
-  state.projectListOpen = false;
+  setState({ projectRowsVisible: 0, projectListOpen: false });
   applyRowVisibility(0);
   updateProjectList();
   updateSeasonProgress();
@@ -84,7 +83,8 @@ function closeList() {
 }
 
 const selectProject = (index: number) => {
-  state.selectedProject = Math.max(0, Math.min(projects.length - 1, index));
+  const sel = Math.max(0, Math.min(projects.length - 1, index));
+  setState({ selectedProject: sel });
   closeList();
   updateProjectDetails();
   updateProjectList();
@@ -95,7 +95,7 @@ const selectProject = (index: number) => {
 // ─── Bind ─────────────────────────────────────────────────────────────────────
 
 export const bindProjects = () => {
-  state.projectRowsVisible = 0;
+  setState({ projectRowsVisible: 0 });
 
   const THRESHOLD  = 18;  // minimum wheel delta to register a step
   const COOLDOWN   = 300; // ms between steps

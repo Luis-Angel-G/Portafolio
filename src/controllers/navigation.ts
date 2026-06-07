@@ -1,5 +1,5 @@
 import { navItems } from '../data';
-import { state } from '../state';
+import { state, setState } from '../state';
 import type { SectionId } from '../types';
 import { updateNav, updateProjectList, updateSeasonProgress, updateVisibleScreens } from './domUpdates';
 
@@ -8,12 +8,10 @@ const isSectionId = (target: string): target is SectionId => navItems.some((item
 export const scrollToTarget = (target: string) => {
   if (!isSectionId(target)) return;
 
-  state.activeSection = target;
-  state.visitedSections.add(target);
-
-  if (state.activeSection !== 'proyectos') {
-    state.projectListOpen = false;
-  }
+  const visited = new Set([...state.visitedSections, target]);
+  const updates: Record<string, unknown> = { activeSection: target, visitedSections: visited };
+  if (target !== 'proyectos') updates.projectListOpen = false;
+  setState(updates as any);
 
   updateNav();
   updateVisibleScreens();
@@ -28,7 +26,7 @@ export const bindNavigation = () => {
       if (!target) return;
       scrollToTarget(target);
       if (button.dataset.scroll === 'proyectos') {
-        state.projectListOpen = true;
+        setState({ projectListOpen: true });
         updateProjectList();
         updateSeasonProgress();
       }

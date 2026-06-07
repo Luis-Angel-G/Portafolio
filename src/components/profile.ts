@@ -4,42 +4,75 @@ import { screenClass, tagRow } from '../utils';
 
 // ─── Extra panel ──────────────────────────────────────────────────────────────
 
-export const renderProfileExtraPanel = () => {
+export const renderProfileExtraPanel = (): HTMLElement => {
   const current = state.profilePanels?.[state.selectedAvatar] ?? 'none';
 
   if (current === 'facts') {
     const avatar = avatars[state.selectedAvatar];
-    return `
-      <div class="profile-extra-panel open" data-profile-extra>
-        <p class="eyebrow">Datos del jugador</p>
-        <div class="facts-grid">
-          ${(avatar.facts ?? [])
-            .map(
-              (fact) => `
-            <div class="fact-card">
-              <span class="fact-icon" aria-hidden="true">${fact.icon}</span>
-              <div class="fact-body">
-                <strong>${fact.label}</strong>
-                <span>${fact.value}</span>
-              </div>
-            </div>`
-            )
-            .join('')}
-        </div>
-      </div>
-    `;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'profile-extra-panel open';
+    wrapper.setAttribute('data-profile-extra', '');
+
+    const eyebrowEl = document.createElement('p');
+    eyebrowEl.className = 'eyebrow';
+    eyebrowEl.textContent = 'Datos del jugador';
+    wrapper.appendChild(eyebrowEl);
+
+    const grid = document.createElement('div');
+    grid.className = 'facts-grid';
+
+    (avatar.facts ?? []).forEach((fact) => {
+      const card = document.createElement('div');
+      card.className = 'fact-card';
+
+      const icon = document.createElement('span');
+      icon.className = 'fact-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = fact.icon;
+
+      const body = document.createElement('div');
+      body.className = 'fact-body';
+
+      const strong = document.createElement('strong');
+      strong.textContent = fact.label;
+
+      const span = document.createElement('span');
+      span.textContent = fact.value;
+
+      body.appendChild(strong);
+      body.appendChild(span);
+
+      card.appendChild(icon);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+
+    wrapper.appendChild(grid);
+    return wrapper;
   }
 
   if (current === 'tech') {
-    return `
-      <div class="profile-extra-panel open" data-profile-extra>
-        <p class="eyebrow">Tech stack</p>
-        <div class="profile-tech-tags">${tagRow(techStack)}</div>
-      </div>
-    `;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'profile-extra-panel open';
+    wrapper.setAttribute('data-profile-extra', '');
+
+    const eyebrowEl = document.createElement('p');
+    eyebrowEl.className = 'eyebrow';
+    eyebrowEl.textContent = 'Tech stack';
+    wrapper.appendChild(eyebrowEl);
+
+    const tags = document.createElement('div');
+    tags.className = 'profile-tech-tags';
+    tags.innerHTML = tagRow(techStack);
+    wrapper.appendChild(tags);
+
+    return wrapper;
   }
 
-  return '<div class="profile-extra-panel" data-profile-extra></div>';
+  const empty = document.createElement('div');
+  empty.className = 'profile-extra-panel';
+  empty.setAttribute('data-profile-extra', '');
+  return empty;
 };
 
 // ─── Profile screen ───────────────────────────────────────────────────────────
@@ -85,7 +118,7 @@ export const ProfileScreen = () => {
           <button type="button" data-profile-panel="facts" class="${current === 'facts' ? 'active' : ''}">Datos</button>
           <button type="button" data-profile-panel="tech" class="${current === 'tech' ? 'active' : ''}">Tech Stack</button>
         </div>
-        ${renderProfileExtraPanel()}
+        <div class="profile-extra-panel" data-profile-extra></div>
         <div class="profile-links">
           <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>

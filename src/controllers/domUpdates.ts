@@ -102,7 +102,10 @@ export const updateProfilePanel = () => {
   });
 
   const currentNode = document.querySelector<HTMLElement>('[data-profile-extra]');
-  if (currentNode) currentNode.outerHTML = renderProfileExtraPanel();
+  if (currentNode) {
+    const newNode = renderProfileExtraPanel();
+    currentNode.replaceWith(newNode);
+  }
 };
 
 export const updatePlayingState = (): void => {

@@ -1,5 +1,5 @@
 import { icon } from '../icons';
-import { state } from '../state';
+import { state, setState } from '../state';
 import { formatTime } from '../utils';
 
 // ─── YouTube IFrame API types ────────────────────────────────────────────────
@@ -272,7 +272,7 @@ export function initMusicPlayer(): void {
           const ps = window.YT!.PlayerState;
           switch (e.data) {
             case ps.PLAYING:
-              state.isPlaying = true;
+              setState({ isPlaying: true });
               setPlayIcon(true);
               startProgressLoop();
               syncMeta();
@@ -280,7 +280,7 @@ export function initMusicPlayer(): void {
 
             case ps.PAUSED:
             case ps.ENDED:
-              state.isPlaying = false;
+              setState({ isPlaying: false });
               setPlayIcon(false);
               if (e.data === ps.ENDED) stopProgressLoop();
               break;
