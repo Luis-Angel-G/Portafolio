@@ -60,6 +60,12 @@ function openRows(n: number) {
   applyRowVisibility((state as any).projectRowsVisible);
   updateProjectList();
   updateSeasonProgress();
+  // Toggle a class when fully opened so CSS can remove the fade/mask
+  const listEl = document.querySelector<HTMLElement>('.project-float-list');
+  if (listEl) {
+    if ((state as any).projectRowsVisible >= maxRows) listEl.classList.add('full-open');
+    else listEl.classList.remove('full-open');
+  }
 }
 
 function closeList() {
@@ -68,6 +74,9 @@ function closeList() {
   applyRowVisibility(0);
   updateProjectList();
   updateSeasonProgress();
+  // ensure mask removed when closed
+  const listEl = document.querySelector<HTMLElement>('.project-float-list');
+  listEl?.classList.remove('full-open');
 }
 
 const selectProject = (index: number) => {

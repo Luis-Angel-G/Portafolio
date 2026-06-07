@@ -1552,7 +1552,7 @@ svg {
 .project-float-list {
   position: fixed;
   right: 0;
-  bottom: 3rem; /* sits right above the footer-bar */
+  bottom: 5rem; /* sits above the footer-bar — raised slightly */
   left: 0;
   z-index: 47;
 
@@ -1613,7 +1613,7 @@ svg {
 .project-float-list {
   position: fixed;
   right:  0;
-  bottom: 10;
+  bottom: 5rem;
   left:   0;
   z-index: 47;
 
@@ -1651,6 +1651,13 @@ svg {
 /* JS toggles these inline — the transition above handles the animation */
 .project-float-list[style*="opacity: 1"] {
   pointer-events: auto;
+}
+
+/* When the list is fully expanded we disable the bottom fade so the
+   last visible row appears solid instead of partially transparent. */
+.project-float-list.full-open {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
 }
 
 /* ─── Card ────────────────────────────────────────────────────────────────── */
