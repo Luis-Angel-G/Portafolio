@@ -72,7 +72,7 @@ function openRows(n: number) {
   }
 }
 
-function closeList() {
+export function closeList() {
   setState({ projectRowsVisible: 0, projectListOpen: false });
   applyRowVisibility(0);
   updateProjectList();
