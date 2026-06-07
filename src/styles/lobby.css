@@ -142,6 +142,129 @@
   font-size: clamp(1.05rem, 2.4vw, 1.9rem);
 }
 
+/* ─── Tab Bar (Fortnite style) ────────────────────────────────────────────── */
+
+.project-tab-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0.75rem;
+  /* The whole bar is skewed like Fortnite's mode selector */
+}
+
+.project-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  padding: 0 1.35rem 0 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-right: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: skewX(-10deg);
+  transition:
+    background 150ms ease,
+    color      150ms ease,
+    border-color 150ms ease;
+  cursor: pointer;
+  overflow: visible;
+  /* Remove clip-path — underline indicator handles the active state */
+}
+
+/* Un-skew the inner content so text is straight */
+.project-tab .tab-icon,
+.project-tab .tab-label,
+.project-tab .tab-na {
+  display: inline-flex;
+  align-items: center;
+  transform: skewX(10deg);
+}
+
+.project-tab .tab-icon {
+  opacity: 0.65;
+  transition: opacity 150ms ease;
+}
+
+.project-tab .tab-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Last tab gets a right border */
+.project-tab:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* ── Active state ── */
+.project-tab.active {
+  background: rgba(95, 216, 255, 0.14);
+  border-color: rgba(95, 216, 255, 0.4);
+  color: #ffffff;
+}
+
+.project-tab.active:last-child {
+  border-right-color: rgba(95, 216, 255, 0.4);
+}
+
+.project-tab.active .tab-icon {
+  opacity: 1;
+  color: var(--cyan);
+}
+
+/* Active underline bar — thick yellow stripe like Fortnite */
+.project-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(255, 207, 87, 0.65);
+}
+
+/* ── Hover state (non-active, non-disabled) ── */
+.project-tab:not(.active):not(.disabled):hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* ── Disabled state ── */
+.project-tab.disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  pointer-events: auto; /* keep so tooltip works */
+}
+
+.project-tab.disabled:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* N/A badge inside disabled demo tab */
+.tab-na {
+  margin-left: 0.3rem;
+  padding: 0.1rem 0.38rem;
+  border-radius: 0.2rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-style: normal;
+  font-family: "Courier New", monospace;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: skewX(10deg); /* cancel parent skew */
+}
+
 /* ─── Primary Action Button ───────────────────────────────────────────────── */
 
 .primary-action {
@@ -160,6 +283,13 @@
   font-style: italic;
   text-transform: uppercase;
   transition: transform 160ms ease, background 160ms ease;
+}
+
+.primary-action svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  stroke-width: 2.5;
 }
 
 .primary-action:hover {
@@ -304,14 +434,6 @@
   color: var(--text, #fff);
 }
 
-.project-float-card .card-mode {
-  font-family: "Courier New", monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted, rgba(255, 255, 255, 0.5));
-}
-
 /* ─── Visitor Counter ─────────────────────────────────────────────────────── */
 
 .visitor-counter {
@@ -441,6 +563,12 @@
   .visitor-counter strong {
     display: none;
   }
+
+  .project-tab {
+    min-height: 2.5rem;
+    padding: 0 1rem 0 0.85rem;
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 560px) {
@@ -455,6 +583,15 @@
   .primary-action {
     min-height: 3.4rem;
     font-size: 1.2rem;
+  }
+
+  .project-tab-bar {
+    width: 100%;
+  }
+
+  .project-tab {
+    flex: 1;
+    justify-content: center;
   }
 }
 

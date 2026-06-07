@@ -20,6 +20,7 @@ export const projects: Project[] = [
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Vercel'],
     reward: '15K PE',
     url: 'https://github.com/24750Montenegro/Conneto-front',
+    demo: 'https://conneto-front.vercel.app',
     preview,
   },
   {

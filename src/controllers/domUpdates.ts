@@ -5,7 +5,6 @@ import { tagRow } from '../utils';
 
 export const updateVisibleScreens = () => {
   document.querySelector<HTMLElement>('.app-shell')?.setAttribute('data-active-section', state.activeSection);
-
   document.querySelectorAll<HTMLElement>('[data-section]').forEach((section) => {
     section.classList.toggle('active-screen', section.id === state.activeSection);
   });
@@ -22,12 +21,10 @@ export const updateProjectList = () => {
   document.querySelector<HTMLElement>('[data-open-projects]')?.classList.toggle('active', state.projectListOpen);
 };
 
-// ─── Toast notification ────────────────────────────────────────────────────────
-// The container lives directly inside .app-shell (added in app.ts),
-// so it is always present in the DOM regardless of the active screen.
+// ─── Toast notification ───────────────────────────────────────────────────────
+// Container lives directly in .app-shell so it is always in the DOM.
 
 function showMissionToast(mission: { title: string; xpReward: string }) {
-  // Search at the app-shell level so it works from any section
   const container = document.querySelector<HTMLElement>('.app-shell > .mission-toast-container');
   if (!container) return;
 
@@ -54,12 +51,10 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
 
   container.appendChild(toast);
 
-  // Animate in
   requestAnimationFrame(() => {
     requestAnimationFrame(() => toast.classList.add('toast-visible'));
   });
 
-  // Animate out and remove
   const DURATION = 3800;
   setTimeout(() => {
     toast.classList.add('toast-exit');
@@ -67,20 +62,14 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   }, DURATION);
 }
 
-// ─── Mission card completion: burst → fade out → remove ───────────────────────
+// ─── Mission card completion ──────────────────────────────────────────────────
 
 function completeMissionCard(card: HTMLElement, mission: { title: string; xpReward: string }) {
-  // 1. mark as complete immediately for styling
   card.classList.add('complete');
   card.setAttribute('data-mission-completed', 'true');
-
-  // 2. trigger burst overlay
   card.classList.add('completing');
-
-  // 3. show toast — always visible regardless of active section
   setTimeout(() => showMissionToast(mission), 200);
 
-  // 4. after burst, fade the card out and remove it
   setTimeout(() => {
     card.classList.add('mission-disappear');
     setTimeout(() => {
@@ -99,19 +88,17 @@ function completeMissionCard(card: HTMLElement, mission: { title: string; xpRewa
   }, 1400);
 }
 
-// ─── Season / missions update ──────────────────────────────────────────────────
+// ─── Season / missions update ─────────────────────────────────────────────────
 
 export const updateSeasonProgress = () => {
   const missions = getMissionProgress();
   const percent  = getMissionAverage();
 
-  // Season bar
   const label = document.querySelector<HTMLElement>('[data-season-progress]');
   const meter = document.querySelector<HTMLElement>('[data-season-meter]');
   if (label) label.textContent = `${percent}%`;
   if (meter) meter.style.width = `${percent}%`;
 
-  // Completed / pending counts
   const completedMissions = missions.filter(m => m.completed);
   const completedEl = document.querySelector<HTMLElement>('[data-completed-count]');
   const pendingEl   = document.querySelector<HTMLElement>('[data-pending-count]');
@@ -120,53 +107,97 @@ export const updateSeasonProgress = () => {
 
   missions.forEach((mission) => {
     const card = document.querySelector<HTMLElement>(`[data-mission-card="${mission.key}"]`);
-
-    // If already removed from DOM (previously completed + disappeared), skip
     if (!card) return;
 
-    // Update meter bar
-    const meterEl = card.querySelector<HTMLElement>(`[data-mission-meter="${mission.key}"]`);
-    if (meterEl) meterEl.style.width = `${mission.value}%`;
-
-    // Update label and percent
+    const meterEl   = card.querySelector<HTMLElement>(`[data-mission-meter="${mission.key}"]`);
     const labelEl   = card.querySelector<HTMLElement>(`[data-mission-label="${mission.key}"]`);
     const percentEl = card.querySelector<HTMLElement>(`[data-mission-percent="${mission.key}"]`);
+    if (meterEl)   meterEl.style.width   = `${mission.value}%`;
     if (labelEl)   labelEl.textContent   = mission.label;
     if (percentEl) percentEl.textContent = `${mission.value}%`;
 
-    // Handle newly completed missions
     if (mission.justCompleted && !card.classList.contains('completing')) {
-      // Register in state so it won't fire again
       const next = new Set(state.completedMissions);
       next.add(mission.key);
       setState({ completedMissions: next });
-
       completeMissionCard(card, { title: mission.title, xpReward: mission.xpReward });
     } else if (mission.completed && !mission.justCompleted) {
-      // Already completed on a previous visit — mark visually but don't animate
       card.classList.add('complete');
     }
   });
 };
 
-export const updateProjectDetails = () => {
-  const project = projects[state.selectedProject];
-  const mode    = document.querySelector<HTMLElement>('[data-project-mode]');
-  const title   = document.querySelector<HTMLElement>('[data-project-title]');
-  const summary = document.querySelector<HTMLElement>('[data-project-summary]');
-  const tags    = document.querySelector<HTMLElement>('[data-project-tags]');
-  const link    = document.querySelector<HTMLAnchorElement>('[data-project-link]');
+// ─── Project details + tab sync ───────────────────────────────────────────────
 
-  if (mode)    mode.textContent    = project.mode;
-  if (title)   title.textContent   = project.title;
-  if (summary) summary.textContent = project.summary;
-  if (tags)    tags.innerHTML      = tagRow(project.stack);
-  if (link)    link.href           = project.url;
+export const updateProjectDetails = () => {
+  const project  = projects[state.selectedProject];
+  const hasDemo  = Boolean(project.demo);
+  const activeTab: 'repo' | 'demo' = state.projectTab === 'demo' && hasDemo ? 'demo' : 'repo';
+  const activeUrl = activeTab === 'demo' ? (project.demo ?? project.url) : project.url;
+
+  const modeEl    = document.querySelector<HTMLElement>('[data-project-mode]');
+  const titleEl   = document.querySelector<HTMLElement>('[data-project-title]');
+  const summaryEl = document.querySelector<HTMLElement>('[data-project-summary]');
+  const tagsEl    = document.querySelector<HTMLElement>('[data-project-tags]');
+  const linkEl    = document.querySelector<HTMLAnchorElement>('[data-project-link]');
+  const labelEl   = document.querySelector<HTMLElement>('[data-action-label]');
+
+  if (modeEl)    modeEl.textContent    = project.mode;
+  if (titleEl)   titleEl.textContent   = project.title;
+  if (summaryEl) summaryEl.textContent = project.summary;
+  if (tagsEl)    tagsEl.innerHTML      = tagRow(project.stack);
+  if (linkEl)    linkEl.href           = activeUrl;
+  if (labelEl)   labelEl.textContent   = activeTab === 'demo' ? 'Ver Demo' : 'Ver Proyecto';
 
   document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
     button.classList.toggle('active', Number(button.dataset.project) === state.selectedProject);
   });
+
+  // Sync tab visual states
+  const tabBar = document.querySelector<HTMLElement>('[data-project-tab-bar]');
+  if (tabBar) {
+    tabBar.querySelectorAll<HTMLElement>('[data-tab]').forEach((tab) => {
+      const tabKey = tab.dataset.tab as 'repo' | 'demo';
+      const isDemo = tabKey === 'demo';
+
+      if (isDemo && !hasDemo) {
+        tab.classList.add('disabled');
+        tab.setAttribute('aria-disabled', 'true');
+        if (!tab.querySelector('.tab-na')) {
+          const badge = document.createElement('span');
+          badge.className = 'tab-na';
+          badge.textContent = 'N/A';
+          tab.appendChild(badge);
+        }
+      } else {
+        tab.classList.remove('disabled');
+        tab.removeAttribute('aria-disabled');
+        tab.querySelector('.tab-na')?.remove();
+      }
+
+      tab.classList.toggle('active', tabKey === activeTab);
+      tab.setAttribute('aria-selected', String(tabKey === activeTab));
+    });
+  }
 };
+
+// ─── Bind tab clicks (called once from bootApp) ───────────────────────────────
+
+export const bindProjectTabs = () => {
+  document.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLElement>('[data-tab]');
+    if (!tab) return;
+    if (tab.classList.contains('disabled')) return;
+
+    const tabKey = tab.dataset.tab as 'repo' | 'demo';
+    if (tabKey === state.projectTab) return;
+
+    setState({ projectTab: tabKey });
+    updateProjectDetails();
+  });
+};
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
 
 export const updateAvatar = () => {
   const avatar = avatars[state.selectedAvatar];

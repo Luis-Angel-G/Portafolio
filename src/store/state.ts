@@ -12,10 +12,8 @@ export const state: AppState = {
   isMuted: false,
   volume: 72,
   projectListOpen: false,
-  // row visibility for project list (0 = closed)
   projectRowsVisible: 0,
-  // per-avatar panel state: index -> panel ('none' | 'facts' | 'tech')
   profilePanels: {} as Record<number, ProfilePanel>,
-  // missions that have already fired their "complete" animation
   completedMissions: new Set<string>(),
+  projectTab: 'repo',
 };

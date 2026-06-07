@@ -6,7 +6,8 @@ export type Project = {
   summary: string;
   stack: string[];
   reward: string;
-  url: string;
+  url: string;       // repo (GitHub)
+  demo?: string;     // live demo URL (optional)
   preview: string;
 };
 
@@ -53,7 +54,7 @@ export type MissionProgress = {
   label: string;
   xpReward: string;
   completed: boolean;
-  justCompleted: boolean; // true only on the tick it crosses 100
+  justCompleted: boolean;
 };
 
 // 'skills' → 'facts'
@@ -73,5 +74,6 @@ export type AppState = {
   projectListOpen: boolean;
   projectRowsVisible?: number;
   profilePanels: Record<number, ProfilePanel>;
-  completedMissions: Set<string>; // tracks which mission keys have been completed
+  completedMissions: Set<string>;
+  projectTab: 'repo' | 'demo'; // which action tab is active in the lobby CTA
 };
