@@ -1,6 +1,5 @@
 import { icon } from '../icons';
 import { state } from '../state';
-import { formatVisitorCount } from '../utils';
 
 // ─── Component HTML ───────────────────────────────────────────────────────────
 
@@ -8,11 +7,6 @@ export const StatusPanel = () => `
   <aside class="status-panel" aria-label="Estado del portafolio">
     <p>Estado: Online</p>
     <span data-fps-ms>-- FPS | --ms</span>
-    <div>
-      ${icon('users')}
-      <strong data-visitor-status>${formatVisitorCount(state.visitorCount)}</strong>
-      <small>Visitantes</small>
-    </div>
   </aside>
 `;
 

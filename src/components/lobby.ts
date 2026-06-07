@@ -1,7 +1,7 @@
 import { avatars, projects } from '../data';
 import { icon } from '../icons';
 import { state } from '../state';
-import { screenClass, formatVisitorCount, tagRow } from '../utils';
+import { screenClass, tagRow } from '../utils';
 import { MusicPlayer } from './musicPlayer';
 
 export const ProjectFloatingList = (): HTMLElement => {
@@ -55,8 +55,6 @@ export const LobbyScreen = (): HTMLElement => {
   svgWrap.innerHTML = icon('users');
   visitorCounter.appendChild(svgWrap);
   const mainSpan = document.createElement('span');
-  mainSpan.setAttribute('data-visitor-main', '');
-  mainSpan.textContent = formatVisitorCount(state.visitorCount);
   visitorCounter.appendChild(mainSpan);
   const status = document.createElement('strong');
   status.setAttribute('data-visitor-label', '');

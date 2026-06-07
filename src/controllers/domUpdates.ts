@@ -2,7 +2,7 @@ import { avatars, projects } from '../data';
 import { renderProfileExtraPanel } from '../components/profile';
 import { getMissionAverage, getMissionProgress } from '../progress';
 import { state } from '../state';
-import { formatVisitorCount, tagRow } from '../utils';
+import { tagRow } from '../utils';
 
 export const updateVisibleScreens = () => {
   document.querySelector<HTMLElement>('.app-shell')?.setAttribute('data-active-section', state.activeSection);
@@ -15,15 +15,6 @@ export const updateVisibleScreens = () => {
 export const updateNav = () => {
   document.querySelectorAll<HTMLElement>('[data-nav]').forEach((button) => {
     button.classList.toggle('active', button.dataset.nav === state.activeSection);
-  });
-};
-
-export const updateVisitorText = () => {
-  document.querySelectorAll<HTMLElement>('[data-visitor-main], [data-visitor-status]').forEach((node) => {
-    node.textContent = formatVisitorCount(state.visitorCount);
-  });
-  document.querySelectorAll<HTMLElement>('[data-visitor-label]').forEach((node) => {
-    node.textContent = state.visitorStatus;
   });
 };
 
