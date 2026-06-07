@@ -3,57 +3,147 @@ import { state } from '../state';
 import type { MissionProgress } from '../types';
 import { screenClass } from '../utils';
 
-const missionCard = (mission: MissionProgress) => `
-  <article class="mission-card ${mission.value >= 100 ? 'complete' : ''}" data-mission-card="${mission.key}">
-    <div class="mission-copy">
-      <span>${mission.phase}</span>
-      <h3>${mission.title}</h3>
-      <div class="meter"><i data-mission-meter="${mission.key}" style="width: ${mission.value}%"></i><b data-mission-label="${mission.key}">${mission.label}</b></div>
+const xpIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`;
+
+const checkIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+const missionCard = (mission: MissionProgress): string => `
+  <article
+    class="mission-card ${mission.completed ? 'complete' : ''}"
+    data-mission-card="${mission.key}"
+    data-mission-completed="${mission.completed}"
+  >
+    <div class="mission-card-inner">
+
+      <div class="mission-phase-tag">${mission.phase}</div>
+
+      <div class="mission-body">
+        <div class="mission-title-row">
+          <div class="mission-check-icon" aria-hidden="true">${checkIcon}</div>
+          <h3 class="mission-title">${mission.title}</h3>
+        </div>
+        <p class="mission-desc">${mission.description}</p>
+
+        <div class="mission-progress-row">
+          <div class="mission-meter-wrap">
+            <div class="meter">
+              <i data-mission-meter="${mission.key}" style="width: ${mission.value}%"></i>
+              <b data-mission-label="${mission.key}">${mission.label}</b>
+            </div>
+          </div>
+          <strong class="mission-pct" data-mission-percent="${mission.key}">${mission.value}%</strong>
+        </div>
+      </div>
+
+      <div class="mission-footer">
+        <span class="mission-xp-badge">
+          ${xpIcon}
+          <span data-mission-xp="${mission.key}">${mission.xpReward}</span>
+        </span>
+        <button type="button" class="mission-action-btn" data-scroll="${mission.target}">
+          ${mission.completed ? '✓ Completada' : mission.actionLabel}
+        </button>
+      </div>
+
     </div>
-    <strong data-mission-percent="${mission.key}">${mission.value}%</strong>
-    <button type="button" data-scroll="${mission.target}">${mission.actionLabel}</button>
+
+    <!-- Completion glow overlay -->
+    <div class="mission-complete-overlay" aria-hidden="true">
+      <div class="mission-complete-burst">
+        <span>${checkIcon}</span>
+        <p>+${mission.xpReward}</p>
+      </div>
+    </div>
   </article>
 `;
 
 export const MissionsScreen = () => {
   const missions = getMissionProgress();
   const missionAverage = getMissionAverage();
+  const completedCount = missions.filter(m => m.completed).length;
+  const totalCount = missions.length;
+
+  // Group by phase category (first word before ·)
+  const phases: Record<string, MissionProgress[]> = {};
+  missions.forEach(m => {
+    const cat = m.phase.split('·')[0].trim();
+    if (!phases[cat]) phases[cat] = [];
+    phases[cat].push(m);
+  });
 
   return `
     <section id="misiones" data-section="misiones" class="${screenClass('misiones', state.activeSection, 'missions-screen')}">
+
+      <!-- Notification container -->
+      <div class="mission-toast-container" aria-live="polite" aria-label="Notificaciones de misión"></div>
+
       <div class="mission-layout">
+
+        <!-- Left: Tab rail -->
         <aside class="mission-tabs" aria-label="Categorias de misiones">
           <button class="active" type="button" aria-label="Misiones principales">XP</button>
         </aside>
 
+        <!-- Center: Board -->
         <div class="mission-board">
+
           <div class="panel-title wide">
             <p class="eyebrow">Islas de creadores</p>
-            <h2>Semanales</h2>
-            <p>Explora las facetas del portafolio como una lista de objetivos: proyectos, perfil, seleccion de avatar y ruta profesional.</p>
+            <h2>Misiones</h2>
+            <p>Completa objetivos explorando el portafolio. Cada misión completada desaparece con una recompensa de XP.</p>
           </div>
 
-          <div class="mission-category">
-            <span>Misiones de desarrollo</span>
-          </div>
+          ${Object.entries(phases).map(([cat, catMissions]) => `
+            <div class="mission-group">
+              <div class="mission-category">
+                <span>${cat}</span>
+              </div>
+              <div class="mission-list" data-mission-group="${cat}">
+                ${catMissions.map(m => missionCard(m)).join('')}
+              </div>
+            </div>
+          `).join('')}
 
-          <div class="mission-list">
-            ${missions.map((mission) => missionCard(mission)).join('')}
-          </div>
         </div>
 
+        <!-- Right: Season summary -->
         <aside class="mission-summary">
-          <div>
-            <p class="eyebrow">Progreso de temporada</p>
-            <strong data-season-progress>${missionAverage}%</strong>
-            <span>Misiones completadas</span>
+          <div class="season-header">
+            <p class="eyebrow">Temporada actual</p>
+            <strong data-season-progress class="season-pct">${missionAverage}%</strong>
+            <span class="season-label">Progreso global</span>
           </div>
-          <div class="meter"><i data-season-meter style="width: ${missionAverage}%"></i></div>
+
+          <div class="meter season-meter">
+            <i data-season-meter style="width: ${missionAverage}%"></i>
+          </div>
+
+          <div class="mission-counter-grid">
+            <div class="mission-counter-cell">
+              <strong data-completed-count>${completedCount}</strong>
+              <small>Completadas</small>
+            </div>
+            <div class="mission-counter-cell">
+              <strong>${totalCount - completedCount}</strong>
+              <small>Pendientes</small>
+            </div>
+            <div class="mission-counter-cell">
+              <strong>${totalCount}</strong>
+              <small>Total</small>
+            </div>
+          </div>
+
           <div class="level-ring" aria-label="Nivel del portafolio">
-            <span>Nivel</span>
-            <strong>220</strong>
+            <span class="level-label">Nivel</span>
+            <strong class="level-num">220</strong>
+          </div>
+
+          <div class="season-xp-total">
+            ${xpIcon}
+            <span>XP disponible: <strong>18,500</strong></span>
           </div>
         </aside>
+
       </div>
     </section>
   `;

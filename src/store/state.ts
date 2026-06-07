@@ -16,4 +16,6 @@ export const state: AppState = {
   projectRowsVisible: 0,
   // per-avatar panel state: index -> panel ('none' | 'facts' | 'tech')
   profilePanels: {} as Record<number, ProfilePanel>,
+  // missions that have already fired their "complete" animation
+  completedMissions: new Set<string>(),
 };

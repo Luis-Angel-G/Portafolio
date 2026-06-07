@@ -45,11 +45,15 @@ export type CareerEntry = {
 export type MissionProgress = {
   key: string;
   title: string;
+  description: string;
   phase: string;
   actionLabel: string;
   target: SectionId;
   value: number;
   label: string;
+  xpReward: string;
+  completed: boolean;
+  justCompleted: boolean; // true only on the tick it crosses 100
 };
 
 // 'skills' → 'facts'
@@ -69,4 +73,5 @@ export type AppState = {
   projectListOpen: boolean;
   projectRowsVisible?: number;
   profilePanels: Record<number, ProfilePanel>;
+  completedMissions: Set<string>; // tracks which mission keys have been completed
 };
