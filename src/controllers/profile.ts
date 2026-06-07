@@ -4,7 +4,7 @@ import type { ProfilePanel } from '../types';
 import { updateAvatar, updateProfilePanel, updateSeasonProgress } from './domUpdates';
 
 const isProfilePanel = (value: string | undefined): value is Exclude<ProfilePanel, 'none'> =>
-  value === 'skills' || value === 'tech';
+  value === 'facts' || value === 'tech';
 
 export const bindProfile = () => {
   document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((button) => {
@@ -22,7 +22,10 @@ export const bindProfile = () => {
 
       const idx = state.selectedAvatar;
       const current = state.profilePanels[idx] ?? 'none';
-      state.profilePanels[idx] = current === button.dataset.profilePanel ? 'none' : (button.dataset.profilePanel as Exclude<ProfilePanel, 'none'>);
+      state.profilePanels[idx] =
+        current === button.dataset.profilePanel
+          ? 'none'
+          : (button.dataset.profilePanel as Exclude<ProfilePanel, 'none'>);
       updateProfilePanel();
       updateSeasonProgress();
     });

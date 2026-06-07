@@ -17,6 +17,12 @@ export type MusicTrack = {
   duration: number;
 };
 
+export type AvatarFact = {
+  icon: string;
+  label: string;
+  value: string;
+};
+
 export type Avatar = {
   name: string;
   role: string;
@@ -28,6 +34,7 @@ export type Avatar = {
     value: string;
     label: string;
   }[];
+  facts: AvatarFact[];
 };
 
 export type CareerEntry = {
@@ -46,4 +53,5 @@ export type MissionProgress = {
   label: string;
 };
 
-export type ProfilePanel = 'none' | 'skills' | 'tech';
+// 'skills' → 'facts'
+export type ProfilePanel = 'none' | 'facts' | 'tech';

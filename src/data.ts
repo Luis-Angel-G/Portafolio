@@ -139,9 +139,16 @@ Su apariencia combina la lealtad y energía de Bolt con el icónico traje de din
 Cuando no está explorando nuevos mundos digitales, puede encontrarse compitiendo en Fortnite, perfeccionando estrategias en Dragon Ball Legends. Más que un personaje, Boltrex representa curiosidad, perseverancia y la pasión por aprender, valores que también guían mi camino como estudiante de Computer Science y desarrollador en formación.
 `,
     stats: [
-    { value: '2017', label: 'Origen' },
-    { value: 'Bolt + Willyrex', label: 'Fusión' },
-  ],
+      { value: '2017', label: 'Origen' },
+      { value: 'Bolt + Willyrex', label: 'Fusión' },
+    ],
+    facts: [
+      { icon: '🐕', label: 'Inspirado en', value: 'Bolt — mi perro que falleció en 2015. El mejor compañero.' },
+      { icon: '📺', label: 'Youtuber favorito', value: 'Willyrex — de ahí viene la "X" de Boltrex.' },
+      { icon: '🦖', label: 'Skin favorita', value: 'Rex de Fortnite — traje de dinosaurio, igual que Boltrex.' },
+      { icon: '🎮', label: 'Juegos', value: 'Fortnite · Dragon Ball Legends · Dragon Ball FighterZ' },
+      { icon: '⚡', label: 'Nick activo desde', value: '2017, Season 1 de Fortnite. Nunca lo cambié.' },
+    ],
   },
   {
     name: 'Luis Angel',
@@ -149,20 +156,28 @@ Cuando no está explorando nuevos mundos digitales, puede encontrarse compitiend
     face: './assets/avatars/luis-face.png',
     full: './assets/avatars/luis.png',
     bioTitle: 'Luis Angel Giron Arevalo',
-   bioText: `
+    bioText: `
 Desde pequeño, los videojuegos despertaron mi interés por la tecnología y la creatividad digital. Mi camino en la computación comenzó en el bachillerato, cuando elegí la orientación en computación y descubrí que disfrutaba construir cosas con tecnología. Esa experiencia me llevó a estudiar Ingeniería en Ciencias de la Computación y Tecnologías de la Información.
 Actualmente curso mi tercer año universitario y disfruto crear proyectos web y experiencias interactivas que combinan diseño, funcionalidad y creatividad. Me gusta aprender nuevas tecnologías, resolver problemas y convertir ideas en productos reales. Una de mis fortalezas es aprender y adaptarme rápidamente a nuevas herramientas y conceptos.
 Fuera del código, me apasionan los videojuegos competitivos como Fortnite, Dragon Ball Legends y Dragon Ball FighterZ, además del fútbol y la cultura pop coreana. Soy aficionado del Real Madrid y sigo grupos y artistas como BLACKPINK, BABYMONSTER, ITZY, ILLIT, Hearts2Hearts, MEOVV y NewJeans.
 Mi objetivo es desarrollar experiencias digitales que inspiren a otros de la misma forma en que los videojuegos me inspiraron a mí. Aspiro a vivir en Europa o Corea del Sur y, algún día, formar parte de equipos como Epic Games para crear productos que lleguen a millones de personas.
 `,
     stats: [
-    { value: '3er Año', label: 'Temporada Actual' },
-    { value: 'Epic Games', label: 'Misión Principal' },
-  ],
+      { value: '3er Año', label: 'Temporada Actual' },
+      { value: 'Epic Games', label: 'Misión Principal' },
+    ],
+    facts: [
+      { icon: '🎓', label: 'Cómo llegó a compu', value: 'En 3ro básico era "solo una clase más" — y terminó siendo su carrera.' },
+      { icon: '⚽', label: 'Equipo favorito', value: 'Real Madrid — siempre.' },
+      { icon: '🎵', label: 'K-pop que escucha', value: 'BLACKPINK · BABYMONSTER · ILLIT · ITZY · NewJeans · MEOVV · Hearts2Hearts · Kep1er · NMIXX' },
+      { icon: '🌍', label: 'Quiere vivir en', value: 'Andorra o Corea del Sur.' },
+      { icon: '🚀', label: 'Superpoder', value: 'Aprende rápido — de cero a funcional en tiempo récord.' },
+      { icon: '🎯', label: 'Meta profesional', value: 'Epic Games — crear productos que lleguen a millones.' },
+    ],
   },
 ];
 
-// ─── Career — sin menciones a Qwik ───────────────────────────────────────────
+// ─── Career ───────────────────────────────────────────────────────────────────
 export const career: CareerEntry[] = [
   {
     year: '2024–2026',
@@ -181,7 +196,7 @@ export const career: CareerEntry[] = [
   },
 ];
 
-// ─── Skills — refleja lo que realmente usas ───────────────────────────────────
+// ─── Skills ───────────────────────────────────────────────────────────────────
 export const skills = [
   ['TypeScript', 84],
   ['CSS / UI', 86],
@@ -191,6 +206,7 @@ export const skills = [
   ['Kotlin / Android', 62],
 ] as const;
 
+// Mantenido para compatibilidad (ya no se usa en el panel de habilidades)
 export const abilities = [
   ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript puro.'],
   ['Full Stack', 'Next.js en frontend, Spring Boot y Go en backend, SQL y Neo4j en datos.'],
