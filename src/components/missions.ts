@@ -47,7 +47,7 @@ const missionCard = (mission: MissionProgress): string => `
 
     </div>
 
-    <!-- Completion glow overlay -->
+    <!-- Brillo de finalización -->
     <div class="mission-complete-overlay" aria-hidden="true">
       <div class="mission-complete-burst">
         <span>${checkIcon}</span>
@@ -63,7 +63,7 @@ export const MissionsScreen = () => {
   const completedCount = missions.filter(m => m.completed).length;
   const totalCount = missions.length;
 
-  // Group by phase category (first word before ·)
+  // Agrupar por categoría (primera palabra antes de ·)
   const phases: Record<string, MissionProgress[]> = {};
   missions.forEach(m => {
     const cat = m.phase.split('·')[0].trim();
@@ -76,12 +76,12 @@ export const MissionsScreen = () => {
 
       <div class="mission-layout">
 
-        <!-- Left: Tab rail -->
-        <aside class="mission-tabs" aria-label="Categorias de misiones">
+        <!-- Izquierda: rail de pestañas -->
+        <aside class="mission-tabs" aria-label="Categorías de misiones">
           <button class="active" type="button" aria-label="Misiones principales">XP</button>
         </aside>
 
-        <!-- Center: Board -->
+        <!-- Centro: tablero -->
         <div class="mission-board">
 
           <div class="panel-title wide">
@@ -103,7 +103,7 @@ export const MissionsScreen = () => {
 
         </div>
 
-        <!-- Right: Season summary -->
+        <!-- Derecha: resumen de temporada -->
         <aside class="mission-summary">
           <div class="season-header">
             <p class="eyebrow">Temporada actual</p>

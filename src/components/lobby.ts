@@ -4,7 +4,7 @@ import { state } from '../state';
 import { screenClass, tagRow } from '../utils';
 import { MusicPlayer } from './musicPlayer';
 
-// ─── SVG icons for the tabs ───────────────────────────────────────────────────
+// ─── Íconos SVG para las pestañas ─────────────────────────────────────────────
 
 const repoIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
@@ -68,7 +68,7 @@ export const LobbyScreen = (): HTMLElement => {
   anchor.className = 'lobby-anchor';
   section.appendChild(anchor);
 
-  // ── Visitor counter ──────────────────────────────────────────────────────
+  // ── Contador de visitantes ───────────────────────────────────────────────
   const visitorCounter = document.createElement('div');
   visitorCounter.className = 'visitor-counter';
   visitorCounter.setAttribute('aria-label', 'Contador de visitantes');
@@ -83,7 +83,7 @@ export const LobbyScreen = (): HTMLElement => {
   visitorCounter.appendChild(statusEl);
   section.appendChild(visitorCounter);
 
-  // ── Stage ────────────────────────────────────────────────────────────────
+  // ── Escenario ────────────────────────────────────────────────────────────
   const stage = document.createElement('div');
   stage.className = 'stage';
   const canvas = document.createElement('canvas');
@@ -103,7 +103,7 @@ export const LobbyScreen = (): HTMLElement => {
   stage.appendChild(charImg);
   section.appendChild(stage);
 
-  // ── Project CTA ──────────────────────────────────────────────────────────
+  // ── CTA del proyecto ─────────────────────────────────────────────────────
   const projectCta = document.createElement('section');
   projectCta.className = 'project-cta';
   projectCta.setAttribute('aria-label', 'Proyecto seleccionado');
@@ -134,14 +134,14 @@ export const LobbyScreen = (): HTMLElement => {
   tags.innerHTML = tagRow(project.stack);
   projectCta.appendChild(tags);
 
-  // ── Tab selector (Fortnite style) ────────────────────────────────────────
+  // ── Barra de pestañas (estilo Fortnite) ──────────────────────────────────
   const tabBar = document.createElement('div');
   tabBar.className = 'project-tab-bar';
   tabBar.setAttribute('role', 'tablist');
   tabBar.setAttribute('aria-label', 'Acción del proyecto');
   tabBar.setAttribute('data-project-tab-bar', '');
 
-  // Repo tab
+  // Pestaña Repo
   const repoTab = document.createElement('button');
   repoTab.type = 'button';
   repoTab.role = 'tab';
@@ -151,7 +151,7 @@ export const LobbyScreen = (): HTMLElement => {
   repoTab.innerHTML = `<span class="tab-icon">${repoIcon}</span><span class="tab-label">Repo</span>`;
   tabBar.appendChild(repoTab);
 
-  // Demo tab
+  // Pestaña Demo
   const demoTab = document.createElement('button');
   demoTab.type = 'button';
   demoTab.role = 'tab';
@@ -167,7 +167,7 @@ export const LobbyScreen = (): HTMLElement => {
 
   projectCta.appendChild(tabBar);
 
-  // ── Primary action button ────────────────────────────────────────────────
+  // ── Botón de acción principal ─────────────────────────────────────────────
   const link = document.createElement('a');
   link.className = 'primary-action';
   link.setAttribute('data-project-link', '');
@@ -187,12 +187,12 @@ export const LobbyScreen = (): HTMLElement => {
   projectCta.appendChild(link);
   section.appendChild(projectCta);
 
-  // ── Music player ─────────────────────────────────────────────────────────
+  // ── Reproductor de música ─────────────────────────────────────────────────
   const musicHolder = document.createElement('div');
   musicHolder.innerHTML = MusicPlayer();
   Array.from(musicHolder.childNodes).forEach((n) => section.appendChild(n));
 
-  // ── Scroll cue ───────────────────────────────────────────────────────────
+  // ── Indicador de scroll ───────────────────────────────────────────────────
   const scrollBtn = document.createElement('button');
   scrollBtn.className = `scroll-cue ${state.projectListOpen ? 'active' : ''}`;
   scrollBtn.type = 'button';

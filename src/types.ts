@@ -7,7 +7,7 @@ export type Project = {
   stack: string[];
   reward: string;
   url: string;       // repo (GitHub)
-  demo?: string;     // live demo URL (optional)
+  demo?: string;     // live demo URL (opcional)
   preview: string;
 };
 
@@ -75,5 +75,7 @@ export type AppState = {
   projectRowsVisible?: number;
   profilePanels: Record<number, ProfilePanel>;
   completedMissions: Set<string>;
-  projectTab: 'repo' | 'demo'; // which action tab is active in the lobby CTA
+  projectTab: 'repo' | 'demo'; // qué pestaña de acción está activa en el lobby
+  repoClicked: boolean;        // el usuario hizo clic en "Ver Proyecto" al menos una vez
+  demoClicked: boolean;        // el usuario hizo clic en "Ver Demo" al menos una vez
 };

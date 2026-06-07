@@ -13,7 +13,7 @@ export const CareerScreen = () => `
           <p>Formación académica, decisiones técnicas y el objetivo de crecer hacia experiencias interactivas, videojuegos y narrativa jugable.</p>
         </div>
 
-        <!-- Timeline educativo -->
+        <!-- Línea de tiempo educativa -->
         <div class="career-timeline">
           <div class="timeline-item">
             <div class="timeline-dot"></div>
@@ -46,14 +46,14 @@ export const CareerScreen = () => `
           </div>
         </div>
 
-        <!-- Season progress -->
+        <!-- Progreso de temporada -->
         <div class="season-track">
           <div class="meter"><i style="width: 65%"></i></div>
           <span>Progreso académico</span>
           <strong>3er Año — 65% completado</strong>
         </div>
 
-        <!-- Tech stack tags -->
+        <!-- Etiquetas del tech stack -->
         <div class="lang-breakdown">
           <h3>Tech Stack</h3>
           <div class="career-tech-tags">
@@ -76,7 +76,7 @@ export const CareerScreen = () => `
           </div>
         </div>
 
-        <!-- GitHub live stats -->
+        <!-- Estadísticas de GitHub en vivo -->
         <div class="gh-stats-panel" data-github-stats aria-label="Estadísticas de GitHub">
           <div class="gh-stats-header">
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" width="18" height="18">
@@ -86,7 +86,7 @@ export const CareerScreen = () => `
             <span class="gh-live-badge">LIVE</span>
           </div>
 
-          <!-- Counters -->
+          <!-- Contadores -->
           <div class="gh-counters">
             <div class="gh-counter">
               <strong data-gh-repos>—</strong>
@@ -102,22 +102,22 @@ export const CareerScreen = () => `
             </div>
             <div class="gh-counter">
               <strong data-gh-followers>—</strong>
-              <small>Followers</small>
+              <small>Seguidores</small>
             </div>
           </div>
 
-          <!-- Language breakdown (populated by JS) -->
+          <!-- Desglose por lenguaje (poblado por JS) -->
           <div class="gh-langs-wrap">
             <p class="eyebrow" style="margin-bottom:0.6rem">Repos por lenguaje</p>
             <div class="gh-langs" data-gh-langs>
-              <div class="gh-loading">Cargando stats…</div>
+              <div class="gh-loading">Cargando estadísticas…</div>
             </div>
           </div>
         </div>
 
       </div>
 
-      <!-- Sidebar resumen -->
+      <!-- Barra lateral de resumen -->
       <aside class="career-summary">
         <div class="rank-badge" aria-label="Avatar principal">
           <img src="./assets/avatars/boltrex.png" alt="Boltrex" class="rank-avatar">

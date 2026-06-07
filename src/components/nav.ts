@@ -3,7 +3,7 @@ import { state } from '../state';
 
 export const Navigation = () => `
   <header class="top-nav">
-    <nav aria-label="Navegacion principal">
+    <nav aria-label="Navegación principal">
       ${navItems
         .map(
           (item) =>

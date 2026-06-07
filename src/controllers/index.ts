@@ -16,6 +16,7 @@ import {
   updateProfilePanel,
   updatePlayingState,
   bindProjectTabs,
+  bindProjectLinkTracking,
 } from './domUpdates';
 
 export const bootApp = () => {
@@ -23,12 +24,13 @@ export const bootApp = () => {
   bindProjects();
   bindProfile();
   bindProjectTabs();
+  bindProjectLinkTracking();
   initMusicPlayer();
   initPerfMeter();
   void initThreeEnergy();
   void initGithubStats();
 
-  // Subscribe to store changes and sync UI
+  // Suscribirse a cambios del store y sincronizar la UI
   subscribe(() => {
     updateVisibleScreens();
     updateNav();
@@ -40,7 +42,7 @@ export const bootApp = () => {
     updatePlayingState();
   });
 
-  // Initial sync
+  // Sincronización inicial
   updateVisibleScreens();
   updateNav();
   updateProjectList();

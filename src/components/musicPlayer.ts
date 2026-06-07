@@ -4,24 +4,24 @@ export const MusicPlayer = (): string => `
   <aside class="music-player" aria-label="Reproductor de música">
 
     <!--
-      The YouTube IFrame API NEEDS a real DOM element to replace.
-      We keep it invisible (1×1, opacity-0) so it never shows the video.
+      La API IFrame de YouTube NECESITA un elemento DOM real para reemplazar.
+      Se mantiene invisible (1×1, opacity-0) para que nunca muestre el video.
     -->
     <div class="yt-host" data-youtube-player aria-hidden="true"></div>
 
-    <!-- Lisa token / album art placeholder -->
+    <!-- Token de Lisa / marcador de álbum -->
     <div class="lisa-token" aria-hidden="true">
       <span>♪</span>
     </div>
 
-    <!-- Track info -->
+    <!-- Información de la pista -->
     <div class="track-copy">
       <p class="eyebrow">Reproduciendo</p>
       <strong data-track-title>—</strong>
       <span data-track-artist></span>
     </div>
 
-    <!-- Play / skip controls -->
+    <!-- Controles: reproducir / saltar -->
     <div class="music-controls">
       <button type="button" data-audio-prev aria-label="Canción anterior">
         ${icon('skipBack')}
@@ -34,13 +34,13 @@ export const MusicPlayer = (): string => `
       </button>
     </div>
 
-    <!-- Time row -->
+    <!-- Fila de tiempo -->
     <div class="time-row">
       <span data-time-current>0:00</span>
       <span data-time-duration>0:00</span>
     </div>
 
-    <!-- Seek bar -->
+    <!-- Barra de progreso -->
     <input
       class="range"
       data-audio-progress
@@ -50,7 +50,7 @@ export const MusicPlayer = (): string => `
       step="0.1"
       value="0"
       style="--fill: 0%"
-      aria-label="Progreso de canción"
+      aria-label="Progreso de la canción"
     >
 
   </aside>

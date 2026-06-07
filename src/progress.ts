@@ -10,6 +10,8 @@ export const getMissionProgress = (): MissionProgress[] => {
   const misionesVisited = state.visitedSections.has('misiones');
   const musicPlaying    = state.isPlaying;
   const allSections     = state.visitedSections.size >= 4;
+  const repoClicked     = state.repoClicked;
+  const demoClicked     = state.demoClicked;
 
   const make = (
     key: string,
@@ -22,7 +24,7 @@ export const getMissionProgress = (): MissionProgress[] => {
     label: string,
     xpReward: string,
   ): MissionProgress => {
-    const wasCompleted = state.completedMissions.has(key);
+    const wasCompleted  = state.completedMissions.has(key);
     const isNowComplete = value >= 100;
     const justCompleted = isNowComplete && !wasCompleted;
     return { key, phase, title, description, actionLabel, target, value, label, xpReward, completed: isNowComplete, justCompleted };
@@ -52,6 +54,28 @@ export const getMissionProgress = (): MissionProgress[] => {
       '+3,000 XP',
     ),
     make(
+      'repo-click',
+      'Fase 1 · Reconocimiento',
+      'Ver el repositorio de un proyecto',
+      'Haz clic en "Ver Proyecto" para abrir el repositorio de GitHub de cualquier proyecto del portafolio.',
+      'Ver repo',
+      'proyectos',
+      repoClicked ? 100 : 20,
+      repoClicked ? 'Repo visitado' : 'Sin abrir',
+      '+2,000 XP',
+    ),
+    make(
+      'demo-click',
+      'Fase 1 · Reconocimiento',
+      'Ver la demo en vivo de un proyecto',
+      'Cambia a la pestaña "Demo" y haz clic en "Ver Demo" para explorar un proyecto desplegado en producción.',
+      'Ver demo',
+      'proyectos',
+      demoClicked ? 100 : 20,
+      demoClicked ? 'Demo visitada' : 'Sin abrir',
+      '+2,000 XP',
+    ),
+    make(
       'who',
       'Fase 2 · Identidad',
       'Leer Who I Am',
@@ -77,7 +101,7 @@ export const getMissionProgress = (): MissionProgress[] => {
       'career',
       'Fase 3 · Ruta',
       'Revisar Mi Camino a Unreal',
-      'Explora la sección de carrera: timeline educativo, tech stack y estadísticas de GitHub en vivo.',
+      'Explora la sección de carrera: línea de tiempo educativa, tech stack y estadísticas de GitHub en vivo.',
       'Ver carrera',
       'carrera',
       careerVisited ? 100 : 25,

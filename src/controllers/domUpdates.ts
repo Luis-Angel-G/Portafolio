@@ -21,8 +21,9 @@ export const updateProjectList = () => {
   document.querySelector<HTMLElement>('[data-open-projects]')?.classList.toggle('active', state.projectListOpen);
 };
 
-// ─── Toast notification ───────────────────────────────────────────────────────
-// Container lives directly in .app-shell so it is always in the DOM.
+// ─── Toast de notificación ────────────────────────────────────────────────────
+// El contenedor vive directamente en .app-shell, por encima de todas las
+// pantallas, de modo que los toasts sean visibles sin importar la sección activa.
 
 function showMissionToast(mission: { title: string; xpReward: string }) {
   const container = document.querySelector<HTMLElement>('.app-shell > .mission-toast-container');
@@ -62,7 +63,7 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   }, DURATION);
 }
 
-// ─── Mission card completion ──────────────────────────────────────────────────
+// ─── Completar tarjeta de misión ──────────────────────────────────────────────
 
 function completeMissionCard(card: HTMLElement, mission: { title: string; xpReward: string }) {
   card.classList.add('complete');
@@ -88,7 +89,7 @@ function completeMissionCard(card: HTMLElement, mission: { title: string; xpRewa
   }, 1400);
 }
 
-// ─── Season / missions update ─────────────────────────────────────────────────
+// ─── Actualizar temporada / misiones ─────────────────────────────────────────
 
 export const updateSeasonProgress = () => {
   const missions = getMissionProgress();
@@ -127,7 +128,7 @@ export const updateSeasonProgress = () => {
   });
 };
 
-// ─── Project details + tab sync ───────────────────────────────────────────────
+// ─── Detalles del proyecto + sincronización de pestañas ───────────────────────
 
 export const updateProjectDetails = () => {
   const project  = projects[state.selectedProject];
@@ -153,7 +154,7 @@ export const updateProjectDetails = () => {
     button.classList.toggle('active', Number(button.dataset.project) === state.selectedProject);
   });
 
-  // Sync tab visual states
+  // Sincronizar estado visual de las pestañas
   const tabBar = document.querySelector<HTMLElement>('[data-project-tab-bar]');
   if (tabBar) {
     tabBar.querySelectorAll<HTMLElement>('[data-tab]').forEach((tab) => {
@@ -181,7 +182,31 @@ export const updateProjectDetails = () => {
   }
 };
 
-// ─── Bind tab clicks (called once from bootApp) ───────────────────────────────
+// ─── Registrar clicks en repo/demo (llamado desde bootApp) ───────────────────
+//
+// Se escucha el clic en el enlace principal de acción. Dependiendo de la
+// pestaña activa, se marca repoClicked o demoClicked en el estado para que
+// las misiones correspondientes se completen.
+
+export const bindProjectLinkTracking = () => {
+  document.addEventListener('click', (e) => {
+    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-project-link]');
+    if (!link) return;
+
+    const hasDemo  = Boolean(projects[state.selectedProject]?.demo);
+    const activeTab: 'repo' | 'demo' = state.projectTab === 'demo' && hasDemo ? 'demo' : 'repo';
+
+    if (activeTab === 'demo' && !state.demoClicked) {
+      setState({ demoClicked: true });
+      updateSeasonProgress();
+    } else if (activeTab === 'repo' && !state.repoClicked) {
+      setState({ repoClicked: true });
+      updateSeasonProgress();
+    }
+  });
+};
+
+// ─── Bind de pestañas (se llama una vez desde bootApp) ───────────────────────
 
 export const bindProjectTabs = () => {
   document.addEventListener('click', (e) => {

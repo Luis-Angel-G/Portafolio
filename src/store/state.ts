@@ -16,4 +16,6 @@ export const state: AppState = {
   profilePanels: {} as Record<number, ProfilePanel>,
   completedMissions: new Set<string>(),
   projectTab: 'repo',
+  repoClicked: false,
+  demoClicked: false,
 };
