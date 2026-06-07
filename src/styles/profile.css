@@ -3,6 +3,7 @@
 .section-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 20rem 40rem 1fr;
   gap: 1.4rem;
   align-items: start;
 }
