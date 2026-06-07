@@ -737,6 +737,7 @@ svg {
   grid-column: 3;
   padding: 1.1rem;
   border-radius: 0.55rem;
+  transform: translateY(-7rem);
 }
 
 .bio-panel h3 {
