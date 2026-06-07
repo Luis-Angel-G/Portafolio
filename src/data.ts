@@ -129,16 +129,19 @@ export const musicPlaylist = {
 export const avatars: Avatar[] = [
   {
     name: 'Boltrex',
-    role: 'Skin inicial',
+    role: 'Personaje Principal',
     face: './assets/avatars/boltrex-face.png',
     full: './assets/avatars/boltrex.png',
     bioTitle: 'Boltrex',
-    bioText:
-      'Skin principal del lobby: representa la energía del portafolio, la parte más gamer y el enfoque visual inspirado en mundos de batalla, anime y experiencias interactivas.',
+    bioText: `
+Nacido de la unión entre dos grandes influencias de mi historia: **Bolt**, mi perro y compañero de aventuras, y **Willyrex**, uno de los creadores de contenido que más marcaron mi infancia gamer. Así nació **Boltrex**, un alter ego digital que me ha acompañado desde 2017, cuando descubrí Fortnite y adopté este nombre como mi identidad en línea.
+Su apariencia combina la lealtad y energía de Bolt con el icónico traje de dinosaurio inspirado en **Rex**, una de mis skins favoritas de Fortnite. Con el paso de los años, Boltrex se convirtió en mucho más que un simple nombre de usuario: pasó a representar mi identidad dentro de videojuegos, comunidades y proyectos personales.
+Cuando no está explorando nuevos mundos digitales, puede encontrarse compitiendo en Fortnite, perfeccionando estrategias en Dragon Ball Legends. Más que un personaje, Boltrex representa curiosidad, perseverancia y la pasión por aprender, valores que también guían mi camino como estudiante de Computer Science y desarrollador en formación.
+`,
     stats: [
-      { value: 'Main', label: 'Skin' },
-      { value: 'Dragon Core', label: 'Estilo' },
-    ],
+    { value: '2017', label: 'Origen' },
+    { value: 'Bolt + Willyrex', label: 'Fusión' },
+  ],
   },
   {
     name: 'Luis Angel',
@@ -146,12 +149,16 @@ export const avatars: Avatar[] = [
     face: './assets/avatars/luis-face.png',
     full: './assets/avatars/luis.png',
     bioTitle: 'Luis Angel Giron Arevalo',
-    bioText:
-      'Desarrollador web en formación con interés fuerte en videojuegos, experiencias interactivas y sistemas donde la historia, la tecnología y el rendimiento trabajan juntos.',
+   bioText: `
+Desde pequeño, los videojuegos despertaron mi interés por la tecnología y la creatividad digital. Mi camino en la computación comenzó en el bachillerato, cuando elegí la orientación en computación y descubrí que disfrutaba construir cosas con tecnología. Esa experiencia me llevó a estudiar Ingeniería en Ciencias de la Computación y Tecnologías de la Información.
+Actualmente curso mi tercer año universitario y disfruto crear proyectos web y experiencias interactivas que combinan diseño, funcionalidad y creatividad. Me gusta aprender nuevas tecnologías, resolver problemas y convertir ideas en productos reales. Una de mis fortalezas es aprender y adaptarme rápidamente a nuevas herramientas y conceptos.
+Fuera del código, me apasionan los videojuegos competitivos como Fortnite, Dragon Ball Legends y Dragon Ball FighterZ, además del fútbol y la cultura pop coreana. Soy aficionado del Real Madrid y sigo grupos y artistas como BLACKPINK, BABYMONSTER, ITZY, ILLIT, Hearts2Hearts, MEOVV y NewJeans.
+Mi objetivo es desarrollar experiencias digitales que inspiren a otros de la misma forma en que los videojuegos me inspiraron a mí. Aspiro a vivir en Europa o Corea del Sur y, algún día, formar parte de equipos como Epic Games para crear productos que lleguen a millones de personas.
+`,
     stats: [
-      { value: 'GT', label: 'Región' },
-      { value: 'Game Web', label: 'Audiencia' },
-    ],
+    { value: '3er Año', label: 'Temporada Actual' },
+    { value: 'Epic Games', label: 'Misión Principal' },
+  ],
   },
 ];
 
