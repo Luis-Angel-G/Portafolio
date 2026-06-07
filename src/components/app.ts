@@ -6,21 +6,46 @@ import { Navigation } from './nav';
 import { ProfileScreen } from './profile';
 import { state } from '../state';
 
+type Component = (() => string) | (() => HTMLElement);
+
 export const renderApp = (root: HTMLElement) => {
-  root.innerHTML = `
-    <main class="app-shell" data-active-section="${state.activeSection}">
-      ${Navigation()}
-      ${StatusPanel()}
-      ${BackgroundLayer()}
-      ${LobbyScreen()}
-      ${ProjectFloatingList()}
-      ${ProfileScreen()}
-      ${MissionsScreen()}
-      ${CareerScreen()}
-      <footer class="footer-bar">
-        <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
-        <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>
-      </footer>
-    </main>
+  const main = document.createElement('main');
+  main.className = 'app-shell';
+  main.setAttribute('data-active-section', state.activeSection);
+
+  const components: Component[] = [
+    Navigation,
+    StatusPanel,
+    BackgroundLayer,
+    LobbyScreen as any,
+    ProjectFloatingList as any,
+    ProfileScreen,
+    MissionsScreen,
+    CareerScreen,
+  ];
+
+  components.forEach((comp) => {
+    // call component
+    const out = (comp as any)();
+    if (typeof out === 'string') {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = out;
+      while (tmp.firstChild) main.appendChild(tmp.firstChild);
+    } else if (out instanceof HTMLElement) {
+      main.appendChild(out);
+    }
+  });
+
+  // footer
+  const footer = document.createElement('div');
+  footer.innerHTML = `
+    <footer class="footer-bar">
+      <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>
+    </footer>
   `;
+  while (footer.firstChild) main.appendChild(footer.firstChild as Node);
+
+  root.innerHTML = '';
+  root.appendChild(main);
 };
