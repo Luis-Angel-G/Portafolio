@@ -21,10 +21,6 @@ export const updateProjectList = () => {
   document.querySelector<HTMLElement>('[data-open-projects]')?.classList.toggle('active', state.projectListOpen);
 };
 
-// ─── Toast de notificación ────────────────────────────────────────────────────
-// El contenedor vive directamente en .app-shell, por encima de todas las
-// pantallas, de modo que los toasts sean visibles sin importar la sección activa.
-
 function showMissionToast(mission: { title: string; xpReward: string }) {
   const container = document.querySelector<HTMLElement>('.app-shell > .mission-toast-container');
   if (!container) return;
@@ -63,8 +59,6 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   }, DURATION);
 }
 
-// ─── Completar tarjeta de misión ──────────────────────────────────────────────
-
 function completeMissionCard(card: HTMLElement, mission: { title: string; xpReward: string }) {
   card.classList.add('complete');
   card.setAttribute('data-mission-completed', 'true');
@@ -88,8 +82,6 @@ function completeMissionCard(card: HTMLElement, mission: { title: string; xpRewa
     }, 100);
   }, 1400);
 }
-
-// ─── Actualizar temporada / misiones ─────────────────────────────────────────
 
 export const updateSeasonProgress = () => {
   const missions = getMissionProgress();
@@ -132,9 +124,13 @@ export const updateSeasonProgress = () => {
 
 export const updateProjectDetails = () => {
   const project  = projects[state.selectedProject];
+  const hasRepo  = Boolean(project.url);
   const hasDemo  = Boolean(project.demo);
-  const activeTab: 'repo' | 'demo' = state.projectTab === 'demo' && hasDemo ? 'demo' : 'repo';
-  const activeUrl = activeTab === 'demo' ? (project.demo ?? project.url) : project.url;
+  const activeTab: 'repo' | 'demo' =
+    state.projectTab === 'repo' && hasRepo ? 'repo' :
+    state.projectTab === 'demo' && hasDemo ? 'demo' :
+    hasRepo ? 'repo' : 'demo';
+  const activeUrl = activeTab === 'demo' ? project.demo! : project.url!;
 
   const modeEl    = document.querySelector<HTMLElement>('[data-project-mode]');
   const titleEl   = document.querySelector<HTMLElement>('[data-project-title]');
@@ -159,9 +155,9 @@ export const updateProjectDetails = () => {
   if (tabBar) {
     tabBar.querySelectorAll<HTMLElement>('[data-tab]').forEach((tab) => {
       const tabKey = tab.dataset.tab as 'repo' | 'demo';
-      const isDemo = tabKey === 'demo';
+      const tabAvailable = tabKey === 'repo' ? hasRepo : hasDemo;
 
-      if (isDemo && !hasDemo) {
+      if (!tabAvailable) {
         tab.classList.add('disabled');
         tab.setAttribute('aria-disabled', 'true');
         if (!tab.querySelector('.tab-na')) {
@@ -182,19 +178,19 @@ export const updateProjectDetails = () => {
   }
 };
 
-// ─── Registrar clicks en repo/demo (llamado desde bootApp) ───────────────────
-//
-// Se escucha el clic en el enlace principal de acción. Dependiendo de la
-// pestaña activa, se marca repoClicked o demoClicked en el estado para que
-// las misiones correspondientes se completen.
+// ─── Registrar clicks en repo/demo ───────────────────────────────────────────
 
 export const bindProjectLinkTracking = () => {
   document.addEventListener('click', (e) => {
     const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-project-link]');
     if (!link) return;
 
+    const hasRepo  = Boolean(projects[state.selectedProject]?.url);
     const hasDemo  = Boolean(projects[state.selectedProject]?.demo);
-    const activeTab: 'repo' | 'demo' = state.projectTab === 'demo' && hasDemo ? 'demo' : 'repo';
+    const activeTab: 'repo' | 'demo' =
+      state.projectTab === 'repo' && hasRepo ? 'repo' :
+      state.projectTab === 'demo' && hasDemo ? 'demo' :
+      hasRepo ? 'repo' : 'demo';
 
     if (activeTab === 'demo' && !state.demoClicked) {
       setState({ demoClicked: true });
@@ -206,7 +202,7 @@ export const bindProjectLinkTracking = () => {
   });
 };
 
-// ─── Bind de pestañas (se llama una vez desde bootApp) ───────────────────────
+// ─── Bind de pestañas ────────────────────────────────────────────────────────
 
 export const bindProjectTabs = () => {
   document.addEventListener('click', (e) => {

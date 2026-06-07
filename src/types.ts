@@ -6,8 +6,8 @@ export type Project = {
   summary: string;
   stack: string[];
   reward: string;
-  url: string;       // repo (GitHub)
-  demo?: string;     // live demo URL (opcional)
+  url?: string;
+  demo?: string;
   preview: string;
 };
 

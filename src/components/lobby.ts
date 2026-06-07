@@ -54,9 +54,13 @@ export const ProjectFloatingList = (): HTMLElement => {
 export const LobbyScreen = (): HTMLElement => {
   const project = projects[state.selectedProject];
   const avatar  = avatars[state.selectedAvatar];
+  const hasRepo = Boolean(project.url);
   const hasDemo = Boolean(project.demo);
-  const activeTab: 'repo' | 'demo' = state.projectTab === 'demo' && hasDemo ? 'demo' : 'repo';
-  const activeUrl = activeTab === 'demo' ? (project.demo ?? project.url) : project.url;
+  const activeTab: 'repo' | 'demo' =
+    state.projectTab === 'repo' && hasRepo ? 'repo' :
+    state.projectTab === 'demo' && hasDemo ? 'demo' :
+    hasRepo ? 'repo' : 'demo';
+  const activeUrl = activeTab === 'demo' ? project.demo! : project.url!;
 
   const section = document.createElement('section');
   section.id = 'proyectos';
@@ -145,10 +149,14 @@ export const LobbyScreen = (): HTMLElement => {
   const repoTab = document.createElement('button');
   repoTab.type = 'button';
   repoTab.role = 'tab';
-  repoTab.className = `project-tab ${activeTab === 'repo' ? 'active' : ''}`;
+  repoTab.className = `project-tab ${activeTab === 'repo' ? 'active' : ''} ${!hasRepo ? 'disabled' : ''}`;
   repoTab.setAttribute('data-tab', 'repo');
   repoTab.setAttribute('aria-selected', String(activeTab === 'repo'));
-  repoTab.innerHTML = `<span class="tab-icon">${repoIcon}</span><span class="tab-label">Repo</span>`;
+  if (!hasRepo) {
+    repoTab.setAttribute('aria-disabled', 'true');
+    repoTab.setAttribute('title', 'Sin repositorio disponible');
+  }
+  repoTab.innerHTML = `<span class="tab-icon">${repoIcon}</span><span class="tab-label">Repo</span>${!hasRepo ? '<span class="tab-na"></span>' : ''}`;
   tabBar.appendChild(repoTab);
 
   // Pestaña Demo
