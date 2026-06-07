@@ -1,4 +1,3 @@
-import { skills } from '../data';
 import { state } from '../state';
 import { screenClass } from '../utils';
 
