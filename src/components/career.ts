@@ -94,6 +94,10 @@ export const CareerScreen = () => `
               <small>Repos</small>
             </div>
             <div class="gh-counter">
+              <strong data-gh-orgs>7</strong>
+              <small>Orgs</small>
+            </div>
+            <div class="gh-counter">
               <strong data-gh-stars>—</strong>
               <small>Stars</small>
             </div>

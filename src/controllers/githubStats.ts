@@ -1,9 +1,18 @@
 // src/controllers/githubStats.ts
-// Fetches public GitHub stats for Luis-Angel-G and injects them into the
-// career screen. No token required — uses the unauthenticated public API
-// (60 req/hour per IP, plenty for a portfolio).
+// Fetches public GitHub stats for Luis-Angel-G + all owned orgs and injects
+// them into the career screen. No token required — public API (60 req/hr per IP).
 
 const USERNAME = 'Luis-Angel-G';
+
+const ORGS = [
+  'Base-de-Datos-1-2026',
+  'Ingenieria-de-Software-1-2026',
+  'Labstrong',
+  'Linux-LAGA',
+  'Programacion-de-Plataformas-Mobiles',
+  'Sistemas-y-Tecnologias-Web-1-2026',
+  'Teoria-de-Probabilidades',
+];
 
 interface GHUser {
   public_repos: number;
@@ -19,54 +28,66 @@ interface GHRepo {
 
 // Language colors matching GitHub's linguist palette
 const LANG_COLORS: Record<string, string> = {
-  Java:       '#b07219',
-  TypeScript: '#3178c6',
-  Kotlin:     '#7f52ff',
-  JavaScript: '#f1e05a',
-  Python:     '#3572a5',
-  Go:         '#00add8',
-  HTML:       '#e34c26',
-  CSS:        '#563d7c',
+  Java:             '#b07219',
+  TypeScript:       '#3178c6',
+  Kotlin:           '#7f52ff',
+  JavaScript:       '#f1e05a',
+  Python:           '#3572a5',
+  Go:               '#00add8',
+  HTML:             '#e34c26',
+  CSS:              '#563d7c',
+  Dart:             '#00b4ab',
+  Swift:            '#f05138',
+  Shell:            '#89e051',
+  'C++':            '#f34b7d',
+  C:                '#555555',
+  Ruby:             '#701516',
 };
-
-function setEl(selector: string, text: string) {
-  const el = document.querySelector<HTMLElement>(selector);
-  if (el) el.textContent = text;
-}
 
 function animateCount(el: HTMLElement, target: number, duration = 900) {
   const start = performance.now();
-  const from = 0;
   const tick = (now: number) => {
     const progress = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    el.textContent = Math.round(from + (target - from) * ease).toString();
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(target * ease).toString();
     if (progress < 1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
 
+async function fetchRepos(url: string): Promise<GHRepo[]> {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) return [];
+  return res.json() as Promise<GHRepo[]>;
+}
+
 export async function initGithubStats(): Promise<void> {
-  // Only run when the career section is in the DOM
   const container = document.querySelector<HTMLElement>('[data-github-stats]');
   if (!container) return;
 
   try {
-    const [userRes, reposRes] = await Promise.all([
+    // ── Fetch user + all sources in parallel ─────────────────────────────────
+    const [userRes, ...repoSources] = await Promise.all([
       fetch(`https://api.github.com/users/${USERNAME}`, { cache: 'no-store' }),
-      fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100`, { cache: 'no-store' }),
+      fetchRepos(`https://api.github.com/users/${USERNAME}/repos?per_page=100`),
+      ...ORGS.map((org) =>
+        fetchRepos(`https://api.github.com/orgs/${org}/repos?per_page=100`)
+      ),
     ]);
 
-    if (!userRes.ok || !reposRes.ok) throw new Error('GitHub API error');
-
+    if (!userRes.ok) throw new Error('GitHub user API error');
     const user: GHUser = await userRes.json() as GHUser;
-    const repos: GHRepo[] = await reposRes.json() as GHRepo[];
 
-    // Compute stats
-    const ownRepos   = repos.filter((r) => !r.fork);
-    const totalStars = ownRepos.reduce((sum, r) => sum + r.stargazers_count, 0);
+    // ── Merge all repos ───────────────────────────────────────────────────────
+    const allRepos: GHRepo[] = (repoSources as GHRepo[][]).flat();
+    const ownRepos = allRepos.filter((r) => !r.fork);
 
-    // Language breakdown from own repos
+    const totalStars = ownRepos.reduce((s, r) => s + r.stargazers_count, 0);
+    const totalRepos = user.public_repos + ORGS.reduce((sum, _) => sum, 0);
+    // Use actual count of fetched repos for the display (more accurate across orgs)
+    const displayRepos = allRepos.length;
+
+    // ── Language breakdown ────────────────────────────────────────────────────
     const langCount: Record<string, number> = {};
     for (const repo of ownRepos) {
       if (repo.language) langCount[repo.language] = (langCount[repo.language] ?? 0) + 1;
@@ -74,20 +95,20 @@ export async function initGithubStats(): Promise<void> {
     const sortedLangs = Object.entries(langCount).sort((a, b) => b[1] - a[1]);
     const totalWithLang = sortedLangs.reduce((s, [, c]) => s + c, 0);
 
-    // ── Animate counters ─────────────────────────────────────────────────────
+    // ── Animate counters ──────────────────────────────────────────────────────
     const repoEl      = container.querySelector<HTMLElement>('[data-gh-repos]');
     const starsEl     = container.querySelector<HTMLElement>('[data-gh-stars]');
     const followersEl = container.querySelector<HTMLElement>('[data-gh-followers]');
 
-    if (repoEl)      animateCount(repoEl,      user.public_repos);
+    if (repoEl)      animateCount(repoEl,      displayRepos);
     if (starsEl)     animateCount(starsEl,     totalStars);
     if (followersEl) animateCount(followersEl, user.followers);
 
-    // ── Language bar chart ────────────────────────────────────────────────────
+    // ── Language bars ─────────────────────────────────────────────────────────
     const barList = container.querySelector<HTMLElement>('[data-gh-langs]');
     if (barList && sortedLangs.length) {
       barList.innerHTML = sortedLangs
-        .slice(0, 6)
+        .slice(0, 7)
         .map(([lang, count]) => {
           const pct   = Math.round((count / totalWithLang) * 100);
           const color = LANG_COLORS[lang] ?? '#aeb8c7';
@@ -103,11 +124,15 @@ export async function initGithubStats(): Promise<void> {
         .join('');
     }
 
-    // Mark as loaded
+    // ── Org count badge ───────────────────────────────────────────────────────
+    const orgEl = container.querySelector<HTMLElement>('[data-gh-orgs]');
+    if (orgEl) animateCount(orgEl, ORGS.length);
+
     container.classList.add('gh-loaded');
 
   } catch {
-    // Silently fail — show placeholder dashes
     container.classList.add('gh-error');
+    const loadingEl = container.querySelector<HTMLElement>('.gh-loading');
+    if (loadingEl) loadingEl.textContent = 'No se pudo cargar';
   }
 }
