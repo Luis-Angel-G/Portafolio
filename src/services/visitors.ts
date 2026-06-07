@@ -1,5 +1,5 @@
 import { state, setState } from '../state';
-import { asRecord, getVisitorApiUrl, readNumber } from '../utils';
+import { asRecord,  readNumber } from '../utils';
 import { updateVisitorText } from '../controllers/domUpdates';
 
 const setVisitorCount = (count: number, status: string) => {
@@ -64,10 +64,5 @@ const initLocalVisitors = () => {
 };
 
 export const initVisitors = () => {
-  const visitorApiUrl = getVisitorApiUrl();
-  if (visitorApiUrl) {
-    initVisitorApi(visitorApiUrl);
-  } else {
     initLocalVisitors();
-  }
 };
