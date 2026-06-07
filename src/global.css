@@ -629,6 +629,10 @@ svg {
   align-items: start;
 }
 
+.profile-screen {
+  overflow: auto;
+}
+
 .panel-title {
   grid-column: 1 / -1;
   max-width: 60rem;
@@ -706,7 +710,7 @@ svg {
   grid-column: 2;
   min-height: min(62vh, 40rem);
   place-items: center;
-  align-self: start;
+  align-self: end;
 }
 
 .profile-character img {
@@ -715,7 +719,8 @@ svg {
   object-fit: contain;
   filter: drop-shadow(0 2.2rem 2.5rem rgba(0, 0, 0, 0.55));
   z-index: 2;
-  transform: translateY(-1.6rem);
+  transform: none;
+  margin-bottom: 0;
 }
 
 .bio-panel,
@@ -737,22 +742,43 @@ svg {
   grid-column: 3;
   padding: 1.1rem;
   border-radius: 0.55rem;
-  transform: translateY(-7rem);
+  max-height: calc(100vh - 11rem);
+  overflow: auto;
+  transform: translateY(-8rem);
 }
 
 .bio-panel h3 {
-  margin: 0.2rem 0 0.8rem;
+  margin: 0.15rem 0 0.55rem;
   font-family: Impact, "Arial Black", sans-serif;
   font-size: clamp(1.3rem, 2.4vw, 2rem);
   font-style: italic;
   text-transform: uppercase;
 }
 
+.bio-panel p[data-profile-bio-text] {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.42;
+}
+
+/* Extra panel inside bio (skills / tech) */
+.profile-extra-panel {
+  margin-top: 0.6rem;
+  max-height: 30vh;
+  overflow: auto;
+  padding-right: 0.4rem;
+}
+
+.profile-extra-panel .profile-extra-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0;
+  gap: 0.6rem;
+  margin: 0.8rem 0;
 }
 
 .stat-grid span {
@@ -780,7 +806,7 @@ svg {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
 .profile-links a {
@@ -1398,6 +1424,10 @@ svg {
   .bio-panel,
   .mission-summary {
     margin: 1rem 0;
+  }
+
+  .profile-screen {
+    overflow: auto;
   }
 
   .scroll-cue {
