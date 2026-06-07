@@ -490,9 +490,16 @@ svg {
     linear-gradient(135deg, rgba(95, 216, 255, 0.22), rgba(255, 207, 87, 0.16)),
     #172234;
   color: var(--gold);
-  font-family: Impact, "Arial Black", sans-serif;
-  font-size: 1.2rem;
-  font-style: italic;
+  font-size: 1.6rem;
+}
+
+.lisa-token span {
+  display: block;
+  line-height: 1;
+}
+
+.app-shell[data-playing="true"] .lisa-token span {
+  animation: note-bounce 0.7s ease-in-out infinite alternate;
 }
 
 .track-copy strong,
@@ -1275,6 +1282,11 @@ svg {
   }
 }
 
+@keyframes note-bounce {
+  from { transform: translateY(0)   scale(1);    }
+  to   { transform: translateY(-3px) scale(1.12); }
+}
+
 @media (max-width: 1180px) {
   .lobby-screen {
     grid-template-columns: minmax(17rem, 1fr) minmax(16rem, 22rem);
@@ -1434,6 +1446,29 @@ svg {
     justify-content: space-between;
     gap: 0.6rem 1rem;
   }
+
+  .mission-layout {
+    padding-top: 1rem;
+  }
+
+  .project-float-list {
+    bottom: 3.8rem;
+    right: 0;
+    left: 0;
+    width: 100vw;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 48vh;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .project-float-card {
+    min-width: 0;
+  }
+
+  .profile-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1506,6 +1541,7 @@ svg {
   margin-top: 2.4rem;
 }
 
+/* ─── Project float list con scroll vertical ──────────────────────────────── */
 .project-float-list {
   position: fixed;
   right: 0;
@@ -1513,10 +1549,12 @@ svg {
   left: 0;
   z-index: 47;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   gap: 1rem;
   align-items: stretch;
-  overflow-x: auto;
+  max-height: 42vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   width: 100vw;
   padding: 0.5rem clamp(1rem, 4vw, 4rem) 0.9rem;
   opacity: 0;
@@ -1525,6 +1563,9 @@ svg {
   transition: opacity 180ms ease, transform 220ms ease;
   scrollbar-width: thin;
   scrollbar-color: rgba(95, 216, 255, 0.72) rgba(255, 255, 255, 0.08);
+  background: rgba(9, 11, 18, 0.88);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .project-float-list.open {
@@ -1534,7 +1575,8 @@ svg {
 }
 
 .project-float-list::-webkit-scrollbar {
-  height: 0.55rem;
+  width: 0.45rem;
+  height: 0.45rem;
 }
 
 .project-float-list::-webkit-scrollbar-thumb {
@@ -1674,30 +1716,6 @@ svg {
   font-size: 0.78rem;
 }
 
-@media (max-width: 820px) {
-  .mission-layout {
-    padding-top: 1rem;
-  }
-
-  .project-float-list {
-    bottom: 3.8rem;
-    right: 0;
-    left: 0;
-    width: 100vw;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-right: 0.75rem;
-    padding-left: 0.75rem;
-  }
-
-  .project-float-card {
-    min-width: 0;
-  }
-
-  .profile-actions {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ─── YouTube hidden host ─────────────────────────────────────────────────── */
 .yt-host {
   position: absolute;
@@ -1706,10 +1724,8 @@ svg {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  /* Keep it in the DOM so YT IFrame API can find it, but fully invisible */
 }
 
-/* Ensure the iframe YT injects is also 1×1 */
 .yt-host iframe {
   width: 1px !important;
   height: 1px !important;
@@ -1737,36 +1753,4 @@ svg {
 .yt-open-link svg {
   width: 0.85rem;
   height: 0.85rem;
-}
-
-/* ─── Lisa token – slight refresh so it fits the ♪ glyph ─────────────────── */
-.lisa-token {
-  float: left;
-  display: grid;
-  place-items: center;
-  width: 4.1rem;
-  height: 4.1rem;
-  margin-right: 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 0.45rem;
-  background:
-    linear-gradient(135deg, rgba(95, 216, 255, 0.22), rgba(255, 207, 87, 0.16)),
-    #172234;
-  color: var(--gold);
-  font-size: 1.6rem;
-}
-
-.lisa-token span {
-  display: block;
-  line-height: 1;
-  /* Animate the note when something is playing */
-}
-
-.app-shell[data-playing="true"] .lisa-token span {
-  animation: note-bounce 0.7s ease-in-out infinite alternate;
-}
-
-@keyframes note-bounce {
-  from { transform: translateY(0)   scale(1);    }
-  to   { transform: translateY(-3px) scale(1.12); }
 }

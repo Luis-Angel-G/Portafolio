@@ -11,43 +11,113 @@ const preview = './assets/backgrounds/lobby-energy-stadium.png';
 
 export const projects: Project[] = [
   {
-    title: 'Victory Grid Portfolio',
-    mode: 'Lobby WebGL Interactivo',
+    title: 'Conneto Frontend',
+    mode: 'Plataforma de Colaboración — Next.js',
     summary:
-      'Portafolio con narrativa de juego, Qwik como ruta de migracion y Three.js para energia visual controlada.',
-    stack: ['TypeScript', 'Three.js', 'Bun', 'CSS'],
+      'Frontend de Conneto, una plataforma para fomentar colaboración entre equipos con impacto social. Construido con Next.js, TypeScript y Tailwind CSS. Deployado en Vercel.',
+    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Vercel'],
     reward: '15K PE',
-    url: 'https://github.com/Luis-Angel-G',
+    url: 'https://github.com/24750Montenegro/Conneto-front',
     preview,
   },
   {
-    title: 'Dragon Quest Lab',
-    mode: 'Prototipo de Gameplay',
+    title: 'Conneto Backend',
+    mode: 'API REST — Spring Boot + MySQL',
     summary:
-      'Espacio para un proyecto personal de mecanicas, narrativa y sistemas inspirados en juegos de aventura.',
-    stack: ['TypeScript', 'Canvas', 'Game Loop'],
+      'Backend de Conneto en Java con Spring Boot. Gestiona la lógica de negocio completa y se conecta a MySQL. 129 commits, arquitectura REST robusta con Java 17.',
+    stack: ['Java', 'Spring Boot', 'MySQL', 'REST API'],
+    reward: '14K PE',
+    url: 'https://github.com/24750Montenegro/Conneto-back',
+    preview,
+  },
+  {
+    title: 'Recomendador de Videojuegos',
+    mode: 'Grafos + IA — Neo4j + Flask',
+    summary:
+      'Sistema de recomendación personalizada con base de datos en grafo Neo4j y API REST en Flask. Algoritmo que analiza preferencias, amistades y similitudes entre juegos para sugerir top 3.',
+    stack: ['Python', 'Flask', 'Neo4j', 'Graph DB', 'REST API'],
+    reward: '13K PE',
+    url: 'https://github.com/MagicBag-tab/Proyecto_2_Algoritmos_y_Estructuras_de_Datos',
+    preview,
+  },
+  {
+    title: 'Interprete Lisp → Java',
+    mode: 'Lenguajes — Compiladores',
+    summary:
+      'Intérprete del lenguaje Lisp implementado en Java. Parseo de expresiones, evaluación de árboles sintácticos y aritmética funcional. Proyecto de compiladores con 93 commits.',
+    stack: ['Java', 'Intérprete', 'Lisp', 'Compiladores'],
     reward: '12K PE',
-    url: 'https://github.com/Luis-Angel-G',
+    url: 'https://github.com/MagicBag-tab/Proyecto_1_Algoritmos_y_Estructuras_de_Datos',
     preview,
   },
   {
-    title: 'ML Match Scout',
-    mode: 'Machine Learning + Futbol',
+    title: 'Full Stack Web App',
+    mode: 'Backend Go + Frontend JS',
     summary:
-      'Idea para unir analisis de datos, scouting futbolistico y visualizaciones que expliquen decisiones.',
-    stack: ['Python', 'Data Viz', 'API'],
+      'Proyecto full stack con backend en Go (servidor, rutas, API) y frontend en JavaScript. Demuestra criterio técnico en decisiones de arquitectura y deploy.',
+    stack: ['Go', 'JavaScript', 'REST API', 'Deploy'],
+    reward: '11K PE',
+    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Proyecto-1-Full-Stack---Backend',
+    preview,
+  },
+  {
+    title: 'MoodNutri',
+    mode: 'App Android — Nutrición + Mood',
+    summary:
+      'Aplicación móvil en Kotlin que conecta el estado de ánimo del usuario con recomendaciones nutricionales. UI nativa con Jetpack Compose.',
+    stack: ['Kotlin', 'Android', 'Jetpack Compose', 'Mobile'],
     reward: '10K PE',
-    url: 'https://github.com/Luis-Angel-G',
+    url: 'https://github.com/Programacion-de-Plataformas-Mobiles/MoodNutri',
     preview,
   },
   {
-    title: 'Web Systems Labs',
-    mode: 'Misiones del Curso',
+    title: 'GenAI Mobile',
+    mode: 'IA Generativa en Android',
     summary:
-      'Seleccion de laboratorios web donde se demuestra estructura, accesibilidad, deploy y decisiones tecnicas.',
-    stack: ['React', 'Node', 'Deploy'],
+      'Integración de modelos de IA generativa en una aplicación Android nativa. Kotlin con llamadas a APIs de IA para generar contenido en tiempo real.',
+    stack: ['Kotlin', 'GenAI', 'Android', 'APIs'],
+    reward: '9K PE',
+    url: 'https://github.com/Programacion-de-Plataformas-Mobiles/GenAI',
+    preview,
+  },
+  {
+    title: 'Proyecto Base de Datos 2',
+    mode: 'Sistema de BD + TypeScript',
+    summary:
+      'Proyecto final de Base de Datos 1: modelado relacional, queries avanzadas y frontend en TypeScript para visualizar y operar la base de datos.',
+    stack: ['TypeScript', 'SQL', 'Database', 'ORM'],
     reward: '8K PE',
-    url: 'https://github.com/Luis-Angel-G',
+    url: 'https://github.com/Base-de-Datos-1-2026/Proyecto-2',
+    preview,
+  },
+  {
+    title: 'Calculadora Web',
+    mode: 'Lab TypeScript — UI Interactiva',
+    summary:
+      'Calculadora construida en TypeScript puro con lógica de estado propia, manejo de eventos y diseño accesible. Sin librerías externas.',
+    stack: ['TypeScript', 'CSS', 'Vite', 'Accesibilidad'],
+    reward: '7K PE',
+    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8-Calculadora',
+    preview,
+  },
+  {
+    title: 'Snake JS',
+    mode: 'Videojuego en Canvas',
+    summary:
+      'Juego Snake implementado con HTML Canvas y JavaScript vanilla. Game loop, detección de colisiones y control de estado sin frameworks.',
+    stack: ['HTML', 'Canvas', 'JavaScript', 'Game Loop'],
+    reward: '6K PE',
+    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Snake',
+    preview,
+  },
+  {
+    title: 'Password Meter',
+    mode: 'Seguridad + UX TypeScript',
+    summary:
+      'Medidor de seguridad de contraseñas en tiempo real con feedback visual, análisis de entropía y criterios de fortaleza. TypeScript sin dependencias.',
+    stack: ['TypeScript', 'CSS', 'Seguridad', 'UX'],
+    reward: '5K PE',
+    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8v2-Password-Meter',
     preview,
   },
 ];
@@ -64,7 +134,7 @@ export const avatars: Avatar[] = [
     full: './assets/avatars/boltrex.png',
     bioTitle: 'Boltrex',
     bioText:
-      'Skin principal del lobby: representa la energia del portafolio, la parte mas gamer y el enfoque visual inspirado en mundos de batalla, anime y experiencias interactivas.',
+      'Skin principal del lobby: representa la energía del portafolio, la parte más gamer y el enfoque visual inspirado en mundos de batalla, anime y experiencias interactivas.',
     stats: [
       { value: 'Main', label: 'Skin' },
       { value: 'Dragon Core', label: 'Estilo' },
@@ -77,7 +147,7 @@ export const avatars: Avatar[] = [
     full: './assets/avatars/luis.png',
     bioTitle: 'Luis Angel Giron Arevalo',
     bioText:
-      'Desarrollador web en formacion con interes fuerte en videojuegos, experiencias interactivas y sistemas donde la historia, la tecnologia y el rendimiento trabajan juntos.',
+      'Desarrollador web en formación con interés fuerte en videojuegos, experiencias interactivas y sistemas donde la historia, la tecnología y el rendimiento trabajan juntos.',
     stats: [
       { value: 'GT', label: 'Region' },
       { value: 'Game Web', label: 'Audiencia' },
@@ -88,8 +158,8 @@ export const avatars: Avatar[] = [
 export const career: CareerEntry[] = [
   {
     year: '2024-2026',
-    title: 'Sistemas y Tecnologias Web',
-    text: 'Labs, componentes, publicacion, accesibilidad y criterio tecnico para defender decisiones.',
+    title: 'Sistemas y Tecnologías Web',
+    text: 'Labs, componentes, publicación, accesibilidad y criterio técnico para defender decisiones.',
   },
   {
     year: 'Ahora',
@@ -99,7 +169,7 @@ export const career: CareerEntry[] = [
   {
     year: 'Siguiente nivel',
     title: 'Unreal y narrativa jugable',
-    text: 'Convertir la estetica del portafolio en prototipos con mecanicas, historia y direccion visual propia.',
+    text: 'Convertir la estética del portafolio en prototipos con mecánicas, historia y dirección visual propia.',
   },
 ];
 
@@ -113,8 +183,8 @@ export const skills = [
 
 export const abilities = [
   ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript.'],
-  ['Game Feel Web', 'Three.js, energia visual y estructura pensada para experiencias jugables.'],
+  ['Game Feel Web', 'Three.js, energía visual y estructura pensada para experiencias jugables.'],
   ['Deploy Mindset', 'Bun, Vite y rutas listas para publicar sin sobrecargar el proyecto.'],
 ] as const;
 
-export const techStack = ['TypeScript', 'Three.js', 'Bun', 'Vite', 'CSS', 'Qwik Ready', 'APIs', 'GitHub'];
+export const techStack = ['TypeScript', 'Next.js', 'Java', 'Spring Boot', 'Go', 'Python', 'Neo4j', 'Kotlin', 'Three.js', 'Bun', 'SQL', 'GitHub'];
