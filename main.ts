@@ -1,11 +1,11 @@
-import './src/base.css';
-import './src/career.css';
-import './src/lobby.css';
-import './src/missions.css';
-import './src/musicplayer.css';
-import './src/nav.css';
-import './src/profile.css';
-import './src/status.css';
+import './src/styles/base.css';
+import './src/styles/career.css';
+import './src/styles/lobby.css';
+import './src/styles/missions.css';
+import './src/styles/musicplayer.css';
+import './src/styles/nav.css';
+import './src/styles/profile.css';
+import './src/styles/status.css';
 import { renderApp } from './src/components/app';
 import { bootApp } from './src/controllers';
 
