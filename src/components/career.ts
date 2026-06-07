@@ -1,4 +1,4 @@
-import { career, skills } from '../data';
+import { skills } from '../data';
 import { state } from '../state';
 import { screenClass } from '../utils';
 
@@ -16,7 +16,6 @@ export const CareerScreen = () => `
 
         <!-- Timeline educativo -->
         <div class="career-timeline">
-
           <div class="timeline-item">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
@@ -46,7 +45,6 @@ export const CareerScreen = () => `
               <p>Prototipos con mecánicas, historia y dirección visual propia. Largo plazo: videojuegos en Europa o Corea del Sur.</p>
             </div>
           </div>
-
         </div>
 
         <!-- Season progress -->
@@ -56,7 +54,7 @@ export const CareerScreen = () => `
           <strong>3er Año — 65% completado</strong>
         </div>
 
-        <!-- Tech stack como tags -->
+        <!-- Tech stack tags -->
         <div class="lang-breakdown">
           <h3>Tech Stack</h3>
           <div class="career-tech-tags">
@@ -76,6 +74,41 @@ export const CareerScreen = () => `
             <span style="border-color:rgba(255,207,87,0.4);background:rgba(255,207,87,0.08);color:#ffcf57">Vite</span>
             <span style="border-color:rgba(255,207,87,0.4);background:rgba(255,207,87,0.08);color:#ffcf57">Bun</span>
             <span style="border-color:rgba(255,207,87,0.4);background:rgba(255,207,87,0.08);color:#ffcf57">GitHub</span>
+          </div>
+        </div>
+
+        <!-- GitHub live stats -->
+        <div class="gh-stats-panel" data-github-stats aria-label="Estadísticas de GitHub">
+          <div class="gh-stats-header">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" width="18" height="18">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.57v-2c-3.34.72-4.04-1.6-4.04-1.6-.54-1.38-1.32-1.74-1.32-1.74-1.08-.74.08-.72.08-.72 1.2.08 1.83 1.22 1.83 1.22 1.06 1.82 2.78 1.3 3.46 1 .1-.77.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.3.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.4 11.4 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.28-1.23 3.28-1.23.66 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.62-5.48 5.9.43.38.82 1.12.82 2.26v3.35c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"/>
+            </svg>
+            <span>GitHub Stats — Luis-Angel-G</span>
+            <span class="gh-live-badge">LIVE</span>
+          </div>
+
+          <!-- Counters -->
+          <div class="gh-counters">
+            <div class="gh-counter">
+              <strong data-gh-repos>—</strong>
+              <small>Repos</small>
+            </div>
+            <div class="gh-counter">
+              <strong data-gh-stars>—</strong>
+              <small>Stars</small>
+            </div>
+            <div class="gh-counter">
+              <strong data-gh-followers>—</strong>
+              <small>Followers</small>
+            </div>
+          </div>
+
+          <!-- Language breakdown (populated by JS) -->
+          <div class="gh-langs-wrap">
+            <p class="eyebrow" style="margin-bottom:0.6rem">Repos por lenguaje</p>
+            <div class="gh-langs" data-gh-langs>
+              <div class="gh-loading">Cargando stats…</div>
+            </div>
           </div>
         </div>
 
