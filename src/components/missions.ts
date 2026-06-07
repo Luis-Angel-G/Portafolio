@@ -74,9 +74,6 @@ export const MissionsScreen = () => {
   return `
     <section id="misiones" data-section="misiones" class="${screenClass('misiones', state.activeSection, 'missions-screen')}">
 
-      <!-- Notification container -->
-      <div class="mission-toast-container" aria-live="polite" aria-label="Notificaciones de misión"></div>
-
       <div class="mission-layout">
 
         <!-- Left: Tab rail -->
@@ -124,23 +121,13 @@ export const MissionsScreen = () => {
               <small>Completadas</small>
             </div>
             <div class="mission-counter-cell">
-              <strong>${totalCount - completedCount}</strong>
+              <strong data-pending-count>${totalCount - completedCount}</strong>
               <small>Pendientes</small>
             </div>
             <div class="mission-counter-cell">
               <strong>${totalCount}</strong>
               <small>Total</small>
             </div>
-          </div>
-
-          <div class="level-ring" aria-label="Nivel del portafolio">
-            <span class="level-label">Nivel</span>
-            <strong class="level-num">220</strong>
-          </div>
-
-          <div class="season-xp-total">
-            ${xpIcon}
-            <span>XP disponible: <strong>18,500</strong></span>
           </div>
         </aside>
 

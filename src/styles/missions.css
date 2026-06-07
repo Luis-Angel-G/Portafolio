@@ -109,7 +109,6 @@
   position: relative;
   border-radius: 0.45rem;
   overflow: hidden;
-  /* clip-path removed — causes overflow issues with the burst overlay */
   transition:
     transform     180ms ease,
     border-color  180ms ease,
@@ -374,8 +373,10 @@
 }
 
 /* ─── Toast notification ─────────────────────────────────────────────────── */
+/* Container is rendered directly in .app-shell (app.ts), above all screens, */
+/* so toasts are visible regardless of which section is active.               */
 
-.mission-toast-container {
+.app-shell > .mission-toast-container {
   position: fixed;
   top: 5.5rem;
   right: clamp(1rem, 4vw, 2.5rem);
@@ -581,64 +582,6 @@
   text-transform: uppercase;
 }
 
-/* ─── Level Ring ──────────────────────────────────────────────────────────── */
-
-.level-ring {
-  display: grid;
-  place-items: center;
-  justify-self: center;
-  width: 7.5rem;
-  aspect-ratio: 1;
-  border: 0.55rem solid rgba(255, 255, 255, 0.08);
-  border-top-color: var(--cyan);
-  border-right-color: var(--cyan);
-  border-radius: 50%;
-  background: rgba(9, 11, 18, 0.45);
-  box-shadow: 0 0 24px rgba(95, 216, 255, 0.24);
-}
-
-.level-label {
-  color: var(--muted);
-  font-family: "Courier New", monospace;
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.level-num {
-  color: var(--text);
-  font-family: Impact, "Arial Black", sans-serif;
-  font-size: 2rem;
-  font-style: italic;
-  line-height: 0.9;
-}
-
-/* ─── Season XP total ────────────────────────────────────────────────────── */
-
-.season-xp-total {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.85rem;
-  border: 1px solid rgba(255, 207, 87, 0.25);
-  border-radius: 0.4rem;
-  background: rgba(255, 207, 87, 0.06);
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.season-xp-total svg {
-  flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  color: var(--gold);
-}
-
-.season-xp-total strong {
-  color: var(--gold);
-}
-
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 1180px) {
@@ -674,7 +617,7 @@
     max-width: calc(100vw - 2rem);
   }
 
-  .mission-toast-container {
+  .app-shell > .mission-toast-container {
     right: 0.75rem;
     top: 4.5rem;
   }

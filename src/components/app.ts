@@ -13,6 +13,13 @@ export const renderApp = (root: HTMLElement) => {
   main.className = 'app-shell';
   main.setAttribute('data-active-section', state.activeSection);
 
+  // ── Global toast container — lives outside any screen so it shows always ──
+  const toastContainer = document.createElement('div');
+  toastContainer.className = 'mission-toast-container';
+  toastContainer.setAttribute('aria-live', 'polite');
+  toastContainer.setAttribute('aria-label', 'Notificaciones de misión');
+  main.appendChild(toastContainer);
+
   const components: Component[] = [
     Navigation,
     StatusPanel,
@@ -25,7 +32,6 @@ export const renderApp = (root: HTMLElement) => {
   ];
 
   components.forEach((comp) => {
-    // call component
     const out = (comp as any)();
     if (typeof out === 'string') {
       const tmp = document.createElement('div');

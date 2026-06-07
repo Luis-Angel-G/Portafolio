@@ -23,9 +23,12 @@ export const updateProjectList = () => {
 };
 
 // ─── Toast notification ────────────────────────────────────────────────────────
+// The container lives directly inside .app-shell (added in app.ts),
+// so it is always present in the DOM regardless of the active screen.
 
 function showMissionToast(mission: { title: string; xpReward: string }) {
-  const container = document.querySelector<HTMLElement>('.mission-toast-container');
+  // Search at the app-shell level so it works from any section
+  const container = document.querySelector<HTMLElement>('.app-shell > .mission-toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
@@ -74,7 +77,7 @@ function completeMissionCard(card: HTMLElement, mission: { title: string; xpRewa
   // 2. trigger burst overlay
   card.classList.add('completing');
 
-  // 3. show toast
+  // 3. show toast — always visible regardless of active section
   setTimeout(() => showMissionToast(mission), 200);
 
   // 4. after burst, fade the card out and remove it
@@ -108,9 +111,12 @@ export const updateSeasonProgress = () => {
   if (label) label.textContent = `${percent}%`;
   if (meter) meter.style.width = `${percent}%`;
 
-  // Completed count
+  // Completed / pending counts
+  const completedMissions = missions.filter(m => m.completed);
   const completedEl = document.querySelector<HTMLElement>('[data-completed-count]');
-  if (completedEl) completedEl.textContent = String(missions.filter(m => m.completed).length);
+  const pendingEl   = document.querySelector<HTMLElement>('[data-pending-count]');
+  if (completedEl) completedEl.textContent = String(completedMissions.length);
+  if (pendingEl)   pendingEl.textContent   = String(missions.length - completedMissions.length);
 
   missions.forEach((mission) => {
     const card = document.querySelector<HTMLElement>(`[data-mission-card="${mission.key}"]`);
