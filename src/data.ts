@@ -81,7 +81,7 @@ export const projects: Project[] = [
     preview,
   },
   {
-    title: 'Proyecto Base de Datos 2',
+    title: 'Proyecto Base de Datos',
     mode: 'Sistema de BD + TypeScript',
     summary:
       'Proyecto final de Base de Datos 1: modelado relacional, queries avanzadas y frontend en TypeScript para visualizar y operar la base de datos.',
@@ -91,23 +91,23 @@ export const projects: Project[] = [
     preview,
   },
   {
-    title: 'Calculadora Web',
-    mode: 'Lab TypeScript — UI Interactiva',
-    summary:
-      'Calculadora construida en TypeScript puro con lógica de estado propia, manejo de eventos y diseño accesible. Sin librerías externas.',
-    stack: ['TypeScript', 'CSS', 'Vite', 'Accesibilidad'],
-    reward: '7K PE',
-    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8-Calculadora',
-    preview,
-  },
-  {
     title: 'Snake JS',
     mode: 'Videojuego en Canvas',
     summary:
       'Juego Snake implementado con HTML Canvas y JavaScript vanilla. Game loop, detección de colisiones y control de estado sin frameworks.',
     stack: ['HTML', 'Canvas', 'JavaScript', 'Game Loop'],
-    reward: '6K PE',
+    reward: '7K PE',
     url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Snake',
+    preview,
+  },
+  {
+    title: 'Calculadora Web',
+    mode: 'Lab TypeScript — UI Interactiva',
+    summary:
+      'Calculadora construida en TypeScript puro con lógica de estado propia, manejo de eventos y diseño accesible. Sin librerías externas.',
+    stack: ['TypeScript', 'CSS', 'Vite', 'Accesibilidad'],
+    reward: '6K PE',
+    url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8-Calculadora',
     preview,
   },
   {
@@ -149,42 +149,49 @@ export const avatars: Avatar[] = [
     bioText:
       'Desarrollador web en formación con interés fuerte en videojuegos, experiencias interactivas y sistemas donde la historia, la tecnología y el rendimiento trabajan juntos.',
     stats: [
-      { value: 'GT', label: 'Region' },
+      { value: 'GT', label: 'Región' },
       { value: 'Game Web', label: 'Audiencia' },
     ],
   },
 ];
 
+// ─── Career — sin menciones a Qwik ───────────────────────────────────────────
 export const career: CareerEntry[] = [
   {
-    year: '2024-2026',
+    year: '2024–2026',
     title: 'Sistemas y Tecnologías Web',
-    text: 'Labs, componentes, publicación, accesibilidad y criterio técnico para defender decisiones.',
+    text: 'Curso completo: labs de TypeScript, componentes, APIs REST, bases de datos, apps móviles y deploy. Más de 10 proyectos entregados en equipo e individual.',
   },
   {
     year: 'Ahora',
-    title: 'Three.js + Qwik Ready',
-    text: 'Riesgo medido: Three.js en el cliente y estructura lista para migrar a Qwik City si el alcance crece.',
+    title: 'Three.js + Portafolio Interactivo',
+    text: 'Riesgo medido: Three.js como capa visual sobre un stack sólido de Vite + TypeScript. El portafolio ES el proyecto más ambicioso del curso.',
   },
   {
     year: 'Siguiente nivel',
-    title: 'Unreal y narrativa jugable',
-    text: 'Convertir la estética del portafolio en prototipos con mecánicas, historia y dirección visual propia.',
+    title: 'Unreal Engine y Narrativa Jugable',
+    text: 'Convertir la estética del portafolio en prototipos con mecánicas, historia y dirección visual propia. Largo plazo: videojuegos con identidad.',
   },
 ];
 
+// ─── Skills — refleja lo que realmente usas ───────────────────────────────────
 export const skills = [
-  ['TypeScript', 82],
+  ['TypeScript', 84],
   ['CSS / UI', 86],
-  ['Bun', 78],
+  ['Java / Spring', 75],
   ['Three.js', 64],
-  ['Unreal Mindset', 72],
+  ['Python / Flask', 68],
+  ['Kotlin / Android', 62],
 ] as const;
 
 export const abilities = [
-  ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript.'],
+  ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript puro.'],
+  ['Full Stack', 'Next.js en frontend, Spring Boot y Go en backend, SQL y Neo4j en datos.'],
   ['Game Feel Web', 'Three.js, energía visual y estructura pensada para experiencias jugables.'],
-  ['Deploy Mindset', 'Bun, Vite y rutas listas para publicar sin sobrecargar el proyecto.'],
 ] as const;
 
-export const techStack = ['TypeScript', 'Next.js', 'Java', 'Spring Boot', 'Go', 'Python', 'Neo4j', 'Kotlin', 'Three.js', 'Bun', 'SQL', 'GitHub'];
+export const techStack = [
+  'TypeScript', 'Next.js', 'Java', 'Spring Boot',
+  'Go', 'Python', 'Neo4j', 'Kotlin', 'Three.js',
+  'Bun', 'SQL', 'GitHub',
+];

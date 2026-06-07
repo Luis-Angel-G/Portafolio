@@ -2,11 +2,15 @@ import { state } from '../state';
 import { asRecord, getVisitorApiUrl, readNumber } from '../utils';
 import { updateVisitorText } from './domUpdates';
 
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+
 const setVisitorCount = (count: number, status: string) => {
   state.visitorCount = Math.max(0, Math.round(count));
   state.visitorStatus = status;
   updateVisitorText();
 };
+
+// ─── API mode (when VITE_VISITOR_API_URL is set) ─────────────────────────────
 
 const initVisitorApi = (apiUrl: string) => {
   const baseUrl = apiUrl.replace(/\/$/, '');
@@ -14,74 +18,76 @@ const initVisitorApi = (apiUrl: string) => {
   window.sessionStorage.setItem('victory-grid-visitor-id', visitorId);
 
   const readCount = async () => {
-    const response = await fetch(`${baseUrl}/live`, { cache: 'no-store' });
+    const response = await fetch(`${baseUrl}/total`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Visitor API ${response.status}`);
     const payload = asRecord(await response.json());
-    const count = readNumber(payload?.count) || readNumber(payload?.active) || readNumber(payload?.visitors);
+    const count = readNumber(payload?.total) || readNumber(payload?.count) || readNumber(payload?.visitors);
     if (!count) throw new Error('Visitor API payload missing count');
-    setVisitorCount(count, 'EN VIVO API');
+    setVisitorCount(count, 'VISITAS TOTALES');
   };
 
-  const join = () =>
-    fetch(`${baseUrl}/join`, {
+  const register = () =>
+    fetch(`${baseUrl}/visit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: visitorId, page: window.location.pathname }),
     }).catch(() => undefined);
 
-  const leave = () => {
-    const payload = JSON.stringify({ id: visitorId, page: window.location.pathname });
-    navigator.sendBeacon?.(`${baseUrl}/leave`, new Blob([payload], { type: 'application/json' }));
-  };
-
-  void join().then(readCount).catch(() => setVisitorCount(0, 'API sin respuesta'));
-  const timer = window.setInterval(() => {
-    void join().then(readCount).catch(() => setVisitorCount(state.visitorCount, 'Reconectando'));
-  }, 8000);
-
-  window.addEventListener('pagehide', () => {
-    window.clearInterval(timer);
-    leave();
-  });
+  void register().then(readCount).catch(() => setVisitorCount(0, 'SIN CONEXIÓN'));
 };
+
+// ─── Local mode (no API — uses localStorage as shared counter) ────────────────
+//
+// Strategy:
+//   • Each unique browser gets a UUID stored in localStorage under
+//     'victory-grid-uid'. This persists across sessions (unlike sessionStorage).
+//   • A separate key 'victory-grid-total' holds an integer: the highest
+//     uid-index ever seen. Each new uid increments it.
+//   • Result: the counter climbs every time a genuinely new visitor opens the
+//     page, and never goes down. Existing visitors don't add to the count on
+//     repeat visits.
+//
+// Limitation: local-only — each browser has its own counter, so the number
+// won't sync across devices. To get a real cross-device total you'd need a
+// small backend (Supabase, KV, etc.). This is the best we can do client-only.
 
 const initLocalVisitors = () => {
-  const key = 'victory-grid-live-visitors';
-  const ttl = 18000;
-  const visitorId = window.sessionStorage.getItem('victory-grid-visitor-id') || crypto.randomUUID();
-  window.sessionStorage.setItem('victory-grid-visitor-id', visitorId);
+  const UID_KEY   = 'victory-grid-uid';
+  const TOTAL_KEY = 'victory-grid-total';
 
-  const readRoster = () => {
-    try {
-      const parsed = JSON.parse(window.localStorage.getItem(key) || '{}') as Record<string, number>;
-      const now = Date.now();
-      return Object.fromEntries(Object.entries(parsed).filter(([, expires]) => expires > now));
-    } catch {
-      return {};
-    }
-  };
+  // Get or create a stable uid for this browser
+  let uid = window.localStorage.getItem(UID_KEY);
+  const isNewVisitor = !uid;
+  if (!uid) {
+    uid = crypto.randomUUID();
+    window.localStorage.setItem(UID_KEY, uid);
+  }
 
-  const touch = () => {
-    const roster = readRoster();
-    roster[visitorId] = Date.now() + ttl;
-    window.localStorage.setItem(key, JSON.stringify(roster));
-    setVisitorCount(Object.keys(roster).length, 'EN VIVO LOCAL');
-  };
+  // Read current total
+  const storedTotal = parseInt(window.localStorage.getItem(TOTAL_KEY) ?? '0', 10);
+  const currentTotal = Number.isFinite(storedTotal) && storedTotal > 0 ? storedTotal : 0;
 
-  touch();
-  const timer = window.setInterval(touch, 5000);
+  let newTotal = currentTotal;
+  if (isNewVisitor) {
+    newTotal = currentTotal + 1;
+    window.localStorage.setItem(TOTAL_KEY, String(newTotal));
+  }
+
+  setVisitorCount(newTotal, 'VISITANTES');
+
+  // Listen for updates from other tabs / windows (different browsers won't
+  // trigger this, but multiple tabs in the same browser will stay in sync)
   window.addEventListener('storage', (event) => {
-    if (event.key === key) {
-      setVisitorCount(Object.keys(readRoster()).length, 'EN VIVO LOCAL');
+    if (event.key === TOTAL_KEY && event.newValue) {
+      const updated = parseInt(event.newValue, 10);
+      if (Number.isFinite(updated) && updated > 0) {
+        setVisitorCount(updated, 'VISITANTES');
+      }
     }
-  });
-  window.addEventListener('pagehide', () => {
-    const roster = readRoster();
-    delete roster[visitorId];
-    window.localStorage.setItem(key, JSON.stringify(roster));
-    window.clearInterval(timer);
   });
 };
+
+// ─── Entry point ─────────────────────────────────────────────────────────────
 
 export const initVisitors = () => {
   const visitorApiUrl = getVisitorApiUrl();
