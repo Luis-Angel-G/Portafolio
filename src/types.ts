@@ -34,7 +34,6 @@ export type Avatar = {
     value: string;
     label: string;
   }[];
-  facts: AvatarFact[];
 };
 
 export type CareerEntry = {

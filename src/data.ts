@@ -140,13 +140,6 @@ export const avatars: Avatar[] = [
       { value: '2017', label: 'Origen' },
       { value: 'Bolt + Willyrex', label: 'Fusión' },
     ],
-    facts: [
-      { icon: '🐕', label: 'Inspirado en', value: 'Bolt — mi perro que falleció en 2015. El mejor compañero.' },
-      { icon: '📺', label: 'Youtuber favorito', value: 'Willyrex — de ahí viene la "X" de Boltrex.' },
-      { icon: '🦖', label: 'Skin favorita', value: 'Rex de Fortnite — traje de dinosaurio, igual que Boltrex.' },
-      { icon: '🎮', label: 'Juegos', value: 'Fortnite · Dragon Ball Legends · Dragon Ball FighterZ' },
-      { icon: '⚡', label: 'Nick activo desde', value: '2017, Season 1 de Fortnite. Nunca lo cambié.' },
-    ],
   },
   {
     name: 'Luis Angel',
@@ -158,14 +151,6 @@ export const avatars: Avatar[] = [
     stats: [
       { value: '3er Año', label: 'Temporada Actual' },
       { value: 'Epic Games', label: 'Misión Principal' },
-    ],
-    facts: [
-      { icon: '🎓', label: 'Cómo llegó a compu', value: 'En 3ro básico era "solo una clase más" — y terminó siendo su carrera.' },
-      { icon: '⚽', label: 'Equipo favorito', value: 'Real Madrid — siempre.' },
-      { icon: '🎵', label: 'K-pop que escucha', value: 'BLACKPINK · BABYMONSTER · ILLIT · ITZY · NewJeans · MEOVV · Hearts2Hearts · Kep1er · NMIXX' },
-      { icon: '🌍', label: 'Quiere vivir en', value: 'Andorra o Corea del Sur.' },
-      { icon: '🚀', label: 'Superpoder', value: 'Aprende rápido — de cero a funcional en tiempo récord.' },
-      { icon: '🎯', label: 'Meta profesional', value: 'Epic Games — crear productos que lleguen a millones.' },
     ],
   },
 ];
@@ -187,27 +172,4 @@ export const career: CareerEntry[] = [
     title: 'Unreal Engine y Narrativa Jugable',
     text: 'Convertir la estética del portafolio en prototipos con mecánicas, historia y dirección visual propia. Largo plazo: videojuegos con identidad.',
   },
-];
-
-// ─── Skills ───────────────────────────────────────────────────────────────────
-export const skills = [
-  ['TypeScript', 84],
-  ['CSS / UI', 86],
-  ['Java / Spring', 75],
-  ['Three.js', 64],
-  ['Python / Flask', 68],
-  ['Kotlin / Android', 62],
-] as const;
-
-// Mantenido para compatibilidad (ya no se usa en el panel de habilidades)
-export const abilities = [
-  ['UI Interactiva', 'Lobby, paneles y microinteracciones con CSS y TypeScript puro.'],
-  ['Full Stack', 'Next.js en frontend, Spring Boot y Go en backend, SQL y Neo4j en datos.'],
-  ['Game Feel Web', 'Three.js, energía visual y estructura pensada para experiencias jugables.'],
-] as const;
-
-export const techStack = [
-  'TypeScript', 'Next.js', 'Java', 'Spring Boot',
-  'Go', 'Python', 'Neo4j', 'Kotlin', 'Three.js',
-  'Bun', 'SQL', 'GitHub',
 ];

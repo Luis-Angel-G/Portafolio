@@ -1,5 +1,4 @@
 import { avatars, projects } from '../data';
-import { renderProfileExtraPanel } from '../components/profile';
 import { getMissionAverage, getMissionProgress } from '../progress';
 import { state } from '../state';
 import { tagRow } from '../utils';
@@ -91,12 +90,6 @@ export const updateProfilePanel = () => {
   document.querySelectorAll<HTMLElement>('[data-profile-panel]').forEach((button) => {
     button.classList.toggle('active', button.dataset.profilePanel === current);
   });
-
-  const currentNode = document.querySelector<HTMLElement>('[data-profile-extra]');
-  if (currentNode) {
-    const newNode = renderProfileExtraPanel();
-    currentNode.replaceWith(newNode);
-  }
 };
 
 export const updatePlayingState = (): void => {
