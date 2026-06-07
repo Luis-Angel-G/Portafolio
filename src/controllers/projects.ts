@@ -3,78 +3,166 @@ import { state } from '../state';
 import { updateProjectDetails, updateProjectList, updateSeasonProgress } from './domUpdates';
 import { scrollToTarget } from './navigation';
 
-const setProjectListOpen = (open: boolean) => {
-  state.activeSection = 'proyectos';
-  state.visitedSections.add('proyectos');
-  state.projectListOpen = open;
+// ─── How many rows to reveal per scroll step ──────────────────────────────────
+//
+// state.projectRowsVisible: 0 = closed, 1 = one row + peek, 2 = two rows + peek …
+// Each scroll DOWN adds one row. Each scroll UP removes one row.
+// When it goes past maxRows, the list closes.
+
+function getCardRowHeight(): number {
+  const card = document.querySelector<HTMLElement>('.project-float-card');
+  if (!card) return 160;
+  const style = getComputedStyle(document.querySelector<HTMLElement>('.project-float-list')!);
+  const gap = parseFloat(style.gap || style.rowGap || '16');
+  return card.getBoundingClientRect().height + (isNaN(gap) ? 16 : gap);
+}
+
+function applyRowVisibility(rows: number) {
+  const list = document.querySelector<HTMLElement>('.project-float-list');
+  if (!list) return;
+
+  if (rows <= 0) {
+    list.style.maxHeight = '0px';
+    list.style.opacity = '0';
+    list.style.pointerEvents = 'none';
+    list.style.transform = 'translateY(8px)';
+    return;
+  }
+
+  const rowH = getCardRowHeight();
+  const peek = rowH * 0.42; // ~42% of next row visible
+  const height = rowH * rows + peek;
+
+  list.style.maxHeight = `${height}px`;
+  list.style.opacity = '1';
+  list.style.pointerEvents = 'auto';
+  list.style.transform = 'translateY(0)';
+}
+
+function getTotalRows(): number {
+  const list = document.querySelector<HTMLElement>('.project-float-list');
+  if (!list) return 1;
+  const rowH = getCardRowHeight();
+  if (rowH <= 0) return 1;
+  return Math.max(1, Math.ceil(list.scrollHeight / rowH));
+}
+
+// ─── State helpers ────────────────────────────────────────────────────────────
+
+function rows(): number {
+  return ((state as any).projectRowsVisible as number) || 0;
+}
+
+function openRows(n: number) {
+  const maxRows = getTotalRows();
+  (state as any).projectRowsVisible = Math.min(Math.max(n, 0), maxRows);
+  state.projectListOpen = (state as any).projectRowsVisible > 0;
+  applyRowVisibility((state as any).projectRowsVisible);
   updateProjectList();
   updateSeasonProgress();
-};
+}
+
+function closeList() {
+  (state as any).projectRowsVisible = 0;
+  state.projectListOpen = false;
+  applyRowVisibility(0);
+  updateProjectList();
+  updateSeasonProgress();
+}
 
 const selectProject = (index: number) => {
   state.selectedProject = Math.max(0, Math.min(projects.length - 1, index));
-  state.projectListOpen = false;
+  closeList();
   updateProjectDetails();
   updateProjectList();
   updateSeasonProgress();
   scrollToTarget('proyectos');
 };
 
-export const bindProjects = () => {
-  const projectsSection = document.getElementById('proyectos');
-  let touchStartY: number | null = null;
+// ─── Bind ─────────────────────────────────────────────────────────────────────
 
+export const bindProjects = () => {
+  (state as any).projectRowsVisible = 0;
+
+  const THRESHOLD  = 18;  // minimum wheel delta to register a step
+  const COOLDOWN   = 300; // ms between steps
+  let   wheelReady = true;
+
+  const cooldown = () => {
+    wheelReady = false;
+    setTimeout(() => { wheelReady = true; }, COOLDOWN);
+  };
+
+  // Toggle button
   document.querySelector<HTMLElement>('[data-open-projects]')?.addEventListener('click', () => {
-    setProjectListOpen(!state.projectListOpen);
+    rows() > 0 ? closeList() : openRows(1);
   });
 
-  projectsSection?.addEventListener(
-    'wheel',
-    (event) => {
-      if (state.activeSection !== 'proyectos') return;
+  // ── Wheel — attached to WINDOW so it fires regardless of hover target ──────
+  // The list has overflow:hidden so no internal scroll ever competes.
+  window.addEventListener('wheel', (e) => {
+    if (state.activeSection !== 'proyectos') return;
+    if (Math.abs(e.deltaY) < THRESHOLD) return;
 
-      if (event.deltaY > 20 && !state.projectListOpen) {
-        event.preventDefault();
-        setProjectListOpen(true);
+    const r   = rows();
+    const max = getTotalRows();
+
+    if (e.deltaY > 0) {
+      // ── DOWN ──
+      e.preventDefault();
+      if (!wheelReady) return;
+      cooldown();
+
+      if (r === 0) {
+        openRows(1);                        // closed → show row 1 + peek
+      } else if (r < max) {
+        openRows(r + 1);                    // add one more row
+      } else {
+        closeList();                        // past max → collapse
       }
+    } else {
+      // ── UP ──
+      if (r === 0) return;                  // already closed, let page scroll
+      e.preventDefault();
+      if (!wheelReady) return;
+      cooldown();
 
-      if (event.deltaY < -20 && state.projectListOpen) {
-        event.preventDefault();
-        setProjectListOpen(false);
-      }
-    },
-    { passive: false }
-  );
+      if (r > 0) openRows(r - 1);          // remove one row (0 → closeList)
+    }
+  }, { passive: false });
 
-  projectsSection?.addEventListener(
-    'touchstart',
-    (event) => {
-      touchStartY = event.touches[0]?.clientY ?? null;
-    },
-    { passive: true }
-  );
+  // ── Touch ─────────────────────────────────────────────────────────────────
+  let touchStartY: number | null = null;
 
-  projectsSection?.addEventListener(
-    'touchmove',
-    (event) => {
-      if (state.activeSection !== 'proyectos' || touchStartY === null) return;
-      const currentY = event.touches[0]?.clientY ?? touchStartY;
-      const delta = touchStartY - currentY;
+  window.addEventListener('touchstart', (e) => {
+    if (state.activeSection !== 'proyectos') return;
+    touchStartY = e.touches[0]?.clientY ?? null;
+  }, { passive: true });
 
-      if (delta > 42 && !state.projectListOpen) {
-        setProjectListOpen(true);
-        touchStartY = currentY;
-      }
+  window.addEventListener('touchend', (e) => {
+    if (state.activeSection !== 'proyectos' || touchStartY === null) return;
+    const endY  = e.changedTouches[0]?.clientY ?? touchStartY;
+    const delta = touchStartY - endY; // positive = swipe up = scroll down
+    touchStartY = null;
 
-      if (delta < -42 && state.projectListOpen) {
-        setProjectListOpen(false);
-        touchStartY = currentY;
-      }
-    },
-    { passive: true }
-  );
+    if (Math.abs(delta) < 36) return;
 
-  document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
-    button.addEventListener('click', () => selectProject(Number(button.dataset.project)));
+    const r   = rows();
+    const max = getTotalRows();
+
+    if (delta > 0) {
+      // Swipe up
+      if (r < max) openRows(r === 0 ? 1 : r + 1);
+      else closeList();
+    } else {
+      // Swipe down
+      if (r > 0) openRows(r - 1);
+    }
+  }, { passive: true });
+
+  // ── Card clicks (delegated) ───────────────────────────────────────────────
+  document.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-project]');
+    if (card) selectProject(Number(card.dataset.project));
   });
 };
