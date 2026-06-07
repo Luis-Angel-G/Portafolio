@@ -2042,6 +2042,10 @@ svg {
   height: 0.85rem;
 }
 
+[data-profile-bio-text] {
+  white-space: pre-line;
+}
+
 /* ─── Career timeline — mobile ───────────────────────────────────────────── */
 @media (max-width: 820px) {
   .career-timeline {
