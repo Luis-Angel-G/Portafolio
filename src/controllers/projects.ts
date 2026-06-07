@@ -117,8 +117,6 @@ export const bindProjects = () => {
         openRows(1);                        // closed → show row 1 + peek
       } else if (r < max) {
         openRows(r + 1);                    // add one more row
-      } else {
-        closeList();                        // past max → collapse
       }
     } else {
       // ── UP ──
