@@ -44,7 +44,11 @@ function getTotalRows(): number {
   if (!list) return 1;
   const rowH = getCardRowHeight();
   if (rowH <= 0) return 1;
-  return Math.max(1, Math.ceil(list.scrollHeight / rowH));
+  // Subtract the 'peek' portion (~42% of a row) when computing total rows
+  // so the partially-visible peek doesn't count as a whole extra row.
+  const peek = rowH * 0.42;
+  const effectiveHeight = Math.max(0, list.scrollHeight - peek);
+  return Math.max(1, Math.ceil(effectiveHeight / rowH));
 }
 
 // ─── State helpers ────────────────────────────────────────────────────────────
