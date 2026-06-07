@@ -114,15 +114,6 @@ export const ProfileScreen = () => {
         <div class="stat-grid">
           ${avatar.stats.map((stat, index) => `<span><strong data-profile-stat-value="${index}">${stat.value}</strong><em data-profile-stat-label="${index}">${stat.label}</em></span>`).join('')}
         </div>
-        <div class="profile-actions" aria-label="Paneles del perfil">
-          <button type="button" data-profile-panel="facts" class="${current === 'facts' ? 'active' : ''}">Datos</button>
-          <button type="button" data-profile-panel="tech" class="${current === 'tech' ? 'active' : ''}">Tech Stack</button>
-        </div>
-        <div class="profile-extra-panel" data-profile-extra></div>
-        <div class="profile-links">
-          <a href="https://github.com/Luis-Angel-G" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://www.linkedin.com/in/luis-angel-gir%C3%B3n-ar%C3%A9valo-0b185a321/" target="_blank" rel="noreferrer">LinkedIn</a>
-        </div>
       </article>
     </section>
   `;
