@@ -1,0 +1,15 @@
+# Victory Grid Portfolio
+
+Enlace al deploy: [https://luis-angel-g.github.io/Portafolio/](https://luis-angel-g.github.io/Portafolio/)
+
+## Reflexión
+
+Este portafolio está dirigido a estudios de desarrollo de videojuegos y empresas creativas que busquen un desarrollador con criterio visual y técnico. La idea detrás del diseño fue que antes de ver un solo proyecto, el reclutador ya sintiera el enfoque: la estética de lobby de Fortnite no es decoración, es la declaración de intenciones. Quiero trabajar en experiencias interactivas y quería que el portafolio mismo fuera una de ellas.
+
+Para lograrlo escogí un stack sin framework de UI. Toda la aplicación corre sobre TypeScript puro con Vite como bundler y Bun como runtime, y el DOM se construye y actualiza manualmente desde funciones que retornan strings o elementos HTML. La decisión de no usar React o Vue fue deliberada: el portafolio tiene cuatro pantallas con transiciones simples y un store reactivo propio de menos de treinta líneas, no hay árbol de componentes que justifique una dependencia de esa escala. Esa decisión en sí misma es parte del portafolio porque demuestra que sé cuándo un framework agrega valor y cuándo no. La única dependencia de runtime es Three.js, usada para los anillos de energía WebGL que orbitan el personaje en el lobby y en la pantalla de perfil, integrada con lazy import para no bloquear la carga inicial.
+
+Las tecnologías del curso que decidí no usar fueron SQLite y Go. SQLite no tiene sentido en un sitio estático sin backend, y Go hubiera requerido un servidor que rompería el deploy en GitHub Pages. Tampoco usé React ni ningún framework de componentes por la razón ya explicada.
+
+Me arriesgué en dos frentes. El primero fue Three.js: nunca lo había usado en producción y aprender a sincronizar el renderer con ResizeObserver, manejar el fallback cuando WebGL no está disponible y correr múltiples escenas en paralelo tomó tiempo real. El segundo fue la YouTube IFrame API embebida de forma invisible: el reproductor vive en un div de 1×1 píxel, la playlist se carga sin que el usuario vea ningún iframe, y tuve que escribir lógica de reintentos para sincronizar los metadatos del track porque la API los devuelve vacíos mientras bufferiza. Jugué seguro en la arquitectura general del store y el sistema de misiones, que siguen patrones que ya conozco bien, y en el deploy con GitHub Actions que ya había configurado antes.
+
+Con una semana más agregaría persistencia de estado entre sesiones para que las misiones completadas sobrevivan a un refresh,  añadiría al menos una demo en vivo más allá del video del proyecto de bodegas y como dije en el pitch me gustaria ver cómo sería la exportación a Qwik.
