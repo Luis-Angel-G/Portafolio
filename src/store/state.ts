@@ -3,7 +3,7 @@ import type { ProfilePanel, SectionId, AppState } from '../types';
 export const state: AppState = {
   activeSection: 'proyectos',
   selectedProject: 0,
-  selectedAvatar: 0,
+  selectedAvatar: 1,
   visitedSections: new Set<SectionId>(['proyectos']),
   currentTrack: 0,
   isPlaying: false,
