@@ -120,10 +120,10 @@ export const CareerScreen = () => `
       <!-- Barra lateral de resumen -->
       <aside class="career-summary">
         <div class="rank-badge" aria-label="Avatar principal">
-          <img src="./assets/avatars/boltrex.png" alt="Boltrex" class="rank-avatar">
+          <img src="./assets/avatars/luis.png" alt="Luis Angel" class="rank-avatar">
         </div>
         <p class="eyebrow">Rango actual</p>
-        <h3>Boltrex</h3>
+        <h3>Luis Angel</h3>
         <strong>Developer in Progress</strong>
         <div class="career-stats">
           <span><small>Universidad</small><b>UVG</b></span>
