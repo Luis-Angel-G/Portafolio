@@ -142,7 +142,7 @@ export const LobbyScreen = (): HTMLElement => {
   // Pestaña Repo
   const repoTab = document.createElement('button');
   repoTab.type = 'button';
-  repoTab.role = 'tab';
+  repoTab.setAttribute('role', 'tab');
   repoTab.className = `project-tab ${activeTab === 'repo' ? 'active' : ''} ${!hasRepo ? 'disabled' : ''}`;
   repoTab.setAttribute('data-tab', 'repo');
   repoTab.setAttribute('aria-selected', String(activeTab === 'repo'));
@@ -156,7 +156,7 @@ export const LobbyScreen = (): HTMLElement => {
   // Pestaña Demo
   const demoTab = document.createElement('button');
   demoTab.type = 'button';
-  demoTab.role = 'tab';
+  demoTab.setAttribute('role', 'tab');
   demoTab.className = `project-tab ${activeTab === 'demo' ? 'active' : ''} ${!hasDemo ? 'disabled' : ''}`;
   demoTab.setAttribute('data-tab', 'demo');
   demoTab.setAttribute('aria-selected', String(activeTab === 'demo'));
