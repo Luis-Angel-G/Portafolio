@@ -17,7 +17,7 @@ export const projects: Project[] = [
       'Full-stack enterprise e-commerce platform with inventory management, order processing, and promotions engine.',
     stack: ['Vue 3', 'TypeScript', 'Express', 'PostgreSQL', 'Docker', 'Prisma', 'Clerk', 'Cloudflare R2'],
     reward: '20K PE',
-    demo: 'public/assets/Projects/demos/bodegasdelicores.webm',
+    demo: './assets/Projects/demos/bodegasdelicores.webm',
     preview: './assets/Projects/licores.png',
 
   },
