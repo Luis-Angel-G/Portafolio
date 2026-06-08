@@ -4,7 +4,8 @@ import { state, setState } from '../state';
 import { tagRow } from '../utils';
 
 export const updateVisibleScreens = () => {
-  document.querySelector<HTMLElement>('.app-shell')?.setAttribute('data-active-section', state.activeSection);
+  document.querySelector<HTMLElement>('.app-shell')
+    ?.setAttribute('data-active-section', state.activeSection);
   document.querySelectorAll<HTMLElement>('[data-section]').forEach((section) => {
     section.classList.toggle('active-screen', section.id === state.activeSection);
   });
@@ -12,17 +13,31 @@ export const updateVisibleScreens = () => {
 
 export const updateNav = () => {
   document.querySelectorAll<HTMLElement>('[data-nav]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.nav === state.activeSection);
+    const isActive = button.dataset.nav === state.activeSection;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
 };
 
 export const updateProjectList = () => {
-  document.querySelector<HTMLElement>('[data-project-list]')?.classList.toggle('open', state.projectListOpen);
-  document.querySelector<HTMLElement>('[data-open-projects]')?.classList.toggle('active', state.projectListOpen);
+  document.querySelector<HTMLElement>('[data-project-list]')
+    ?.classList.toggle('open', state.projectListOpen);
+  document.querySelector<HTMLElement>('[data-open-projects]')
+    ?.classList.toggle('active', state.projectListOpen);
+
+  // Sincronizar aria-pressed en las tarjetas de proyecto
+  document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
+    button.setAttribute(
+      'aria-pressed',
+      String(Number(button.dataset.project) === state.selectedProject)
+    );
+  });
 };
 
 function showMissionToast(mission: { title: string; xpReward: string }) {
-  const container = document.querySelector<HTMLElement>('.app-shell > .mission-toast-container');
+  const container = document.querySelector<HTMLElement>(
+    '.app-shell > .mission-toast-container'
+  );
   if (!container) return;
 
   const toast = document.createElement('div');
@@ -30,7 +45,8 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   toast.setAttribute('role', 'status');
   toast.innerHTML = `
     <div class="toast-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
     </div>
@@ -39,7 +55,8 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
       <span>${mission.title}</span>
     </div>
     <div class="toast-xp">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
       </svg>
       ${mission.xpReward}
@@ -47,7 +64,6 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   `;
 
   container.appendChild(toast);
-
   requestAnimationFrame(() => {
     requestAnimationFrame(() => toast.classList.add('toast-visible'));
   });
@@ -59,7 +75,10 @@ function showMissionToast(mission: { title: string; xpReward: string }) {
   }, DURATION);
 }
 
-function completeMissionCard(card: HTMLElement, mission: { title: string; xpReward: string }) {
+function completeMissionCard(
+  card: HTMLElement,
+  mission: { title: string; xpReward: string }
+) {
   card.classList.add('complete');
   card.setAttribute('data-mission-completed', 'true');
   card.classList.add('completing');
@@ -71,7 +90,8 @@ function completeMissionCard(card: HTMLElement, mission: { title: string; xpRewa
       card.style.height = `${card.offsetHeight}px`;
       card.style.overflow = 'hidden';
       requestAnimationFrame(() => {
-        card.style.transition = 'height 350ms ease, margin 350ms ease, padding 350ms ease, opacity 200ms ease';
+        card.style.transition =
+          'height 350ms ease, margin 350ms ease, padding 350ms ease, opacity 200ms ease';
         card.style.height = '0';
         card.style.marginBottom = '0';
         card.style.paddingTop = '0';
@@ -92,14 +112,16 @@ export const updateSeasonProgress = () => {
   if (label) label.textContent = `${percent}%`;
   if (meter) meter.style.width = `${percent}%`;
 
-  const completedMissions = missions.filter(m => m.completed);
+  const completedMissions = missions.filter((m) => m.completed);
   const completedEl = document.querySelector<HTMLElement>('[data-completed-count]');
   const pendingEl   = document.querySelector<HTMLElement>('[data-pending-count]');
   if (completedEl) completedEl.textContent = String(completedMissions.length);
   if (pendingEl)   pendingEl.textContent   = String(missions.length - completedMissions.length);
 
   missions.forEach((mission) => {
-    const card = document.querySelector<HTMLElement>(`[data-mission-card="${mission.key}"]`);
+    const card = document.querySelector<HTMLElement>(
+      `[data-mission-card="${mission.key}"]`
+    );
     if (!card) return;
 
     const meterEl   = card.querySelector<HTMLElement>(`[data-mission-meter="${mission.key}"]`);
@@ -123,9 +145,9 @@ export const updateSeasonProgress = () => {
 // ─── Detalles del proyecto + sincronización de pestañas ───────────────────────
 
 export const updateProjectDetails = () => {
-  const project  = projects[state.selectedProject];
-  const hasRepo  = Boolean(project.url);
-  const hasDemo  = Boolean(project.demo);
+  const project   = projects[state.selectedProject];
+  const hasRepo   = Boolean(project.url);
+  const hasDemo   = Boolean(project.demo);
   const activeTab: 'repo' | 'demo' =
     state.projectTab === 'repo' && hasRepo ? 'repo' :
     state.projectTab === 'demo' && hasDemo ? 'demo' :
@@ -147,14 +169,28 @@ export const updateProjectDetails = () => {
   if (labelEl)   labelEl.textContent   = activeTab === 'demo' ? 'Ver Demo' : 'Ver Proyecto';
 
   document.querySelectorAll<HTMLElement>('[data-project]').forEach((button) => {
-    button.classList.toggle('active', Number(button.dataset.project) === state.selectedProject);
+    const isActive = Number(button.dataset.project) === state.selectedProject;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
   });
 
-  // Sincronizar estado visual de las pestañas
+  // ── Sincronizar tabpanel (aria-controls) ──────────────────────────────────
+  const tabPanel = document.querySelector<HTMLElement>('[data-project-tabpanel]');
+  if (tabPanel) {
+    const repoPanelId = 'project-panel-repo';
+    const demoPanelId = 'project-panel-demo';
+    tabPanel.id = activeTab === 'repo' ? repoPanelId : demoPanelId;
+    tabPanel.setAttribute(
+      'aria-labelledby',
+      activeTab === 'repo' ? 'project-tab-repo' : 'project-tab-demo'
+    );
+  }
+
+  // ── Sincronizar estado visual de las pestañas ─────────────────────────────
   const tabBar = document.querySelector<HTMLElement>('[data-project-tab-bar]');
   if (tabBar) {
     tabBar.querySelectorAll<HTMLElement>('[data-tab]').forEach((tab) => {
-      const tabKey = tab.dataset.tab as 'repo' | 'demo';
+      const tabKey       = tab.dataset.tab as 'repo' | 'demo';
       const tabAvailable = tabKey === 'repo' ? hasRepo : hasDemo;
 
       if (!tabAvailable) {
@@ -172,8 +208,9 @@ export const updateProjectDetails = () => {
         tab.querySelector('.tab-na')?.remove();
       }
 
-      tab.classList.toggle('active', tabKey === activeTab);
-      tab.setAttribute('aria-selected', String(tabKey === activeTab));
+      const isActive = tabKey === activeTab;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
     });
   }
 };
@@ -182,11 +219,13 @@ export const updateProjectDetails = () => {
 
 export const bindProjectLinkTracking = () => {
   document.addEventListener('click', (e) => {
-    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-project-link]');
+    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>(
+      '[data-project-link]'
+    );
     if (!link) return;
 
-    const hasRepo  = Boolean(projects[state.selectedProject]?.url);
-    const hasDemo  = Boolean(projects[state.selectedProject]?.demo);
+    const hasRepo   = Boolean(projects[state.selectedProject]?.url);
+    const hasDemo   = Boolean(projects[state.selectedProject]?.demo);
     const activeTab: 'repo' | 'demo' =
       state.projectTab === 'repo' && hasRepo ? 'repo' :
       state.projectTab === 'demo' && hasDemo ? 'demo' :
@@ -228,7 +267,9 @@ export const updateAvatar = () => {
       : (image.alt = `Avatar de ${avatar.name}`, avatar.full);
   });
   document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((button) => {
-    button.classList.toggle('active', Number(button.dataset.avatar) === state.selectedAvatar);
+    const isActive = Number(button.dataset.avatar) === state.selectedAvatar;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
   });
 
   const bioTitle = document.querySelector<HTMLElement>('[data-profile-bio-title]');

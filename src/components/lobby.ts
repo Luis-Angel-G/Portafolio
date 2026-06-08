@@ -1,3 +1,4 @@
+// src/components/lobby.ts
 import { avatars, projects } from '../data';
 import { icon } from '../icons';
 import { state } from '../state';
@@ -30,6 +31,7 @@ export const ProjectFloatingList = (): HTMLElement => {
     button.type = 'button';
     button.dataset.project = String(index);
     button.className = `project-float-card ${index === state.selectedProject ? 'active' : ''}`;
+    button.setAttribute('aria-pressed', String(index === state.selectedProject));
 
     const preview = document.createElement('span');
     preview.className = 'project-float-preview';
@@ -50,15 +52,18 @@ export const ProjectFloatingList = (): HTMLElement => {
 };
 
 export const LobbyScreen = (): HTMLElement => {
-  const project = projects[state.selectedProject];
-  const avatar  = avatars[state.selectedAvatar];
-  const hasRepo = Boolean(project.url);
-  const hasDemo = Boolean(project.demo);
+  const project   = projects[state.selectedProject];
+  const avatar    = avatars[state.selectedAvatar];
+  const hasRepo   = Boolean(project.url);
+  const hasDemo   = Boolean(project.demo);
   const activeTab: 'repo' | 'demo' =
     state.projectTab === 'repo' && hasRepo ? 'repo' :
     state.projectTab === 'demo' && hasDemo ? 'demo' :
     hasRepo ? 'repo' : 'demo';
   const activeUrl = activeTab === 'demo' ? project.demo! : project.url!;
+
+  const repoPanelId = 'project-panel-repo';
+  const demoPanelId = 'project-panel-demo';
 
   const section = document.createElement('section');
   section.id = 'proyectos';
@@ -69,17 +74,6 @@ export const LobbyScreen = (): HTMLElement => {
   anchor.id = 'lobby';
   anchor.className = 'lobby-anchor';
   section.appendChild(anchor);
-
-  // ── Contador de visitantes ───────────────────────────────────────────────
-  const visitorCounter = document.createElement('div');
-  visitorCounter.className = 'visitor-counter';
-  visitorCounter.setAttribute('aria-label', 'Contador de visitantes');
-  const svgWrap = document.createElement('span');
-  svgWrap.innerHTML = icon('users');
-  visitorCounter.appendChild(svgWrap);
-  const mainSpan = document.createElement('span');
-  visitorCounter.appendChild(mainSpan);
-  section.appendChild(visitorCounter);
 
   // ── Escenario ────────────────────────────────────────────────────────────
   const stage = document.createElement('div');
@@ -132,20 +126,21 @@ export const LobbyScreen = (): HTMLElement => {
   tags.innerHTML = tagRow(project.stack);
   projectCta.appendChild(tags);
 
-  // ── Barra de pestañas  ──────────────────────────────────
+  // ── Barra de pestañas ────────────────────────────────────────────────────
   const tabBar = document.createElement('div');
   tabBar.className = 'project-tab-bar';
   tabBar.setAttribute('role', 'tablist');
   tabBar.setAttribute('aria-label', 'Acción del proyecto');
   tabBar.setAttribute('data-project-tab-bar', '');
 
-  // Pestaña Repo
   const repoTab = document.createElement('button');
   repoTab.type = 'button';
   repoTab.setAttribute('role', 'tab');
+  repoTab.id = 'project-tab-repo';
   repoTab.className = `project-tab ${activeTab === 'repo' ? 'active' : ''} ${!hasRepo ? 'disabled' : ''}`;
   repoTab.setAttribute('data-tab', 'repo');
   repoTab.setAttribute('aria-selected', String(activeTab === 'repo'));
+  repoTab.setAttribute('aria-controls', repoPanelId);
   if (!hasRepo) {
     repoTab.setAttribute('aria-disabled', 'true');
     repoTab.setAttribute('title', 'Sin repositorio disponible');
@@ -153,13 +148,14 @@ export const LobbyScreen = (): HTMLElement => {
   repoTab.innerHTML = `<span class="tab-icon">${repoIcon}</span><span class="tab-label">Repo</span>${!hasRepo ? '<span class="tab-na"></span>' : ''}`;
   tabBar.appendChild(repoTab);
 
-  // Pestaña Demo
   const demoTab = document.createElement('button');
   demoTab.type = 'button';
   demoTab.setAttribute('role', 'tab');
+  demoTab.id = 'project-tab-demo';
   demoTab.className = `project-tab ${activeTab === 'demo' ? 'active' : ''} ${!hasDemo ? 'disabled' : ''}`;
   demoTab.setAttribute('data-tab', 'demo');
   demoTab.setAttribute('aria-selected', String(activeTab === 'demo'));
+  demoTab.setAttribute('aria-controls', demoPanelId);
   if (!hasDemo) {
     demoTab.setAttribute('aria-disabled', 'true');
     demoTab.setAttribute('title', 'Sin demo disponible');
@@ -169,7 +165,16 @@ export const LobbyScreen = (): HTMLElement => {
 
   projectCta.appendChild(tabBar);
 
-  // ── Botón de acción principal ─────────────────────────────────────────────
+  // ── Panel de contenido (tabpanel) ─────────────────────────────────────────
+  const tabPanel = document.createElement('div');
+  tabPanel.id = activeTab === 'repo' ? repoPanelId : demoPanelId;
+  tabPanel.setAttribute('role', 'tabpanel');
+  tabPanel.setAttribute(
+    'aria-labelledby',
+    activeTab === 'repo' ? 'project-tab-repo' : 'project-tab-demo'
+  );
+  tabPanel.setAttribute('data-project-tabpanel', '');
+
   const link = document.createElement('a');
   link.className = 'primary-action';
   link.setAttribute('data-project-link', '');
@@ -186,7 +191,8 @@ export const LobbyScreen = (): HTMLElement => {
   arrowWrap.innerHTML = externalIcon;
   link.appendChild(arrowWrap);
 
-  projectCta.appendChild(link);
+  tabPanel.appendChild(link);
+  projectCta.appendChild(tabPanel);
   section.appendChild(projectCta);
 
   // ── Reproductor de música ─────────────────────────────────────────────────
