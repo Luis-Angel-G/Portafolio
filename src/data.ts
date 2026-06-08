@@ -9,8 +9,6 @@ export const navItems: { id: SectionId; label: string }[] = [
   { id: 'carrera', label: 'Carrera' },
 ];
 
-let preview = '';
-
 export const projects: Project[] = [
   {
     title: 'Conneto Frontend',
