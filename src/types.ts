@@ -64,8 +64,6 @@ export type AppState = {
   activeSection: SectionId;
   selectedProject: number;
   selectedAvatar: number;
-  visitorCount: number;
-  visitorStatus: string;
   visitedSections: Set<SectionId>;
   currentTrack: number;
   isPlaying: boolean;

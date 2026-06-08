@@ -81,10 +81,6 @@ export const LobbyScreen = (): HTMLElement => {
   visitorCounter.appendChild(svgWrap);
   const mainSpan = document.createElement('span');
   visitorCounter.appendChild(mainSpan);
-  const statusEl = document.createElement('strong');
-  statusEl.setAttribute('data-visitor-label', '');
-  statusEl.textContent = state.visitorStatus;
-  visitorCounter.appendChild(statusEl);
   section.appendChild(visitorCounter);
 
   // ── Escenario ────────────────────────────────────────────────────────────

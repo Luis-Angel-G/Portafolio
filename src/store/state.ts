@@ -4,8 +4,6 @@ export const state: AppState = {
   activeSection: 'proyectos',
   selectedProject: 0,
   selectedAvatar: 0,
-  visitorCount: 0,
-  visitorStatus: 'Conectando',
   visitedSections: new Set<SectionId>(['proyectos']),
   currentTrack: 0,
   isPlaying: false,
