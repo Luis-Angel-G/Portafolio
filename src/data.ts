@@ -9,7 +9,7 @@ export const navItems: { id: SectionId; label: string }[] = [
   { id: 'carrera', label: 'Carrera' },
 ];
 
-const preview = './assets/backgrounds/lobby-energy-stadium.png';
+let preview = '';
 
 export const projects: Project[] = [
   {
@@ -20,8 +20,7 @@ export const projects: Project[] = [
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Vercel'],
     reward: '15K PE',
     url: 'https://github.com/24750Montenegro/Conneto-front',
-    demo: 'https://conneto-front.vercel.app',
-    preview,
+    preview: './assets/Projects/conneto.png',
   },
   {
     title: 'Conneto Backend',
@@ -31,7 +30,7 @@ export const projects: Project[] = [
     stack: ['Java', 'Spring Boot', 'MySQL', 'REST API'],
     reward: '14K PE',
     url: 'https://github.com/24750Montenegro/Conneto-back',
-    preview,
+    preview: './assets/Projects/conneto.png',
   },
   {
     title: 'Recomendador de Videojuegos',
@@ -41,7 +40,7 @@ export const projects: Project[] = [
     stack: ['Python', 'Flask', 'Neo4j', 'Graph DB', 'REST API'],
     reward: '13K PE',
     url: 'https://github.com/MagicBag-tab/Proyecto_2_Algoritmos_y_Estructuras_de_Datos',
-    preview,
+    preview: './assets/Projects/github.png',
   },
   {
     title: 'Interprete Lisp → Java',
@@ -51,7 +50,7 @@ export const projects: Project[] = [
     stack: ['Java', 'Intérprete', 'Lisp', 'Compiladores'],
     reward: '12K PE',
     url: 'https://github.com/MagicBag-tab/Proyecto_1_Algoritmos_y_Estructuras_de_Datos',
-    preview,
+    preview: './assets/Projects/github.png',
   },
   {
     title: 'Full Stack Web App',
@@ -61,7 +60,7 @@ export const projects: Project[] = [
     stack: ['Go', 'JavaScript', 'REST API', 'Deploy'],
     reward: '11K PE',
     url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Proyecto-1-Full-Stack---Backend',
-    preview,
+    preview: './assets/Projects/fullstack-web.png',
   },
   {
     title: 'MoodNutri',
@@ -71,7 +70,7 @@ export const projects: Project[] = [
     stack: ['Kotlin', 'Android', 'Jetpack Compose', 'Mobile'],
     reward: '10K PE',
     url: 'https://github.com/Programacion-de-Plataformas-Mobiles/MoodNutri',
-    preview,
+    preview: './assets/Projects/moodnutri.png',
   },
   {
     title: 'GenAI Mobile',
@@ -81,17 +80,17 @@ export const projects: Project[] = [
     stack: ['Kotlin', 'GenAI', 'Android', 'APIs'],
     reward: '9K PE',
     url: 'https://github.com/Programacion-de-Plataformas-Mobiles/GenAI',
-    preview,
+    preview: './assets/Projects/github.png',
   },
   {
-    title: 'Proyecto Base de Datos',
+    title: 'KStore Galaxy',
     mode: 'Sistema de BD + TypeScript',
     summary:
       'Proyecto final de Base de Datos 1: modelado relacional, queries avanzadas y frontend en TypeScript para visualizar y operar la base de datos.',
     stack: ['TypeScript', 'SQL', 'Database', 'ORM'],
     reward: '8K PE',
     url: 'https://github.com/Base-de-Datos-1-2026/Proyecto-2',
-    preview,
+    preview: './assets/Projects/kstore-galaxy.png',
   },
   {
     title: 'Snake JS',
@@ -101,7 +100,7 @@ export const projects: Project[] = [
     stack: ['HTML', 'Canvas', 'JavaScript', 'Game Loop'],
     reward: '7K PE',
     url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Snake',
-    preview,
+    preview: './assets/Projects/snake.png',
   },
   {
     title: 'Calculadora Web',
@@ -111,7 +110,7 @@ export const projects: Project[] = [
     stack: ['TypeScript', 'CSS', 'Vite', 'Accesibilidad'],
     reward: '6K PE',
     url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8-Calculadora',
-    preview,
+    preview: './assets/Projects/calculadora.png',
   },
   {
     title: 'Password Meter',
@@ -121,7 +120,7 @@ export const projects: Project[] = [
     stack: ['TypeScript', 'CSS', 'Seguridad', 'UX'],
     reward: '5K PE',
     url: 'https://github.com/Sistemas-y-Tecnologias-Web-1-2026/Lab-8v2-Password-Meter',
-    preview,
+    preview: './assets/Projects/password.png',
   },
 ];
 
