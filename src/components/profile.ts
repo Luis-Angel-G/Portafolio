@@ -1,12 +1,9 @@
 import { avatars } from '../data';
 import { state } from '../state';
-import { screenClass, tagRow } from '../utils';
-
-// ─── Profile screen ───────────────────────────────────────────────────────────
+import { screenClass } from '../utils';
 
 export const ProfileScreen = () => {
   const avatar = avatars[state.selectedAvatar];
-  const current = state.profilePanels?.[state.selectedAvatar] ?? 'none';
 
   return `
     <section id="who-i-am" data-section="who-i-am" class="${screenClass('who-i-am', state.activeSection, 'profile-screen section-grid')}">

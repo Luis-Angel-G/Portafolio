@@ -1,8 +1,3 @@
-import { icon } from '../icons';
-import { state } from '../state';
-
-// ─── Component HTML ───────────────────────────────────────────────────────────
-
 export const StatusPanel = () => `
   <aside class="status-panel" aria-label="Estado del portafolio">
     <p>Estado: Online</p>
@@ -17,16 +12,11 @@ export const BackgroundLayer = () => `
   </div>
 `;
 
-// ─── Real FPS / frame-time meter using requestAnimationFrame ─────────────────
-//
-// Measures the gap between consecutive rAF callbacks. Smooths over 30 frames
-// so the number doesn't flicker on every tick.
-
 export const initPerfMeter = () => {
   const el = document.querySelector<HTMLElement>('[data-fps-ms]');
   if (!el) return;
 
-  const WINDOW = 30; // frames to average
+  const WINDOW = 30;
   const times: number[] = [];
   let last = 0;
 

@@ -243,13 +243,3 @@ svg {
     gap: 0.6rem 1rem;
   }
 }
-
-/* ─── Component CSS imports ───────────────────────────────────────────────── */
-/* Each component imports its own styles directly in TypeScript:              */
-/*   import './styles/nav.css'                                                */
-/*   import './styles/lobby.css'                                              */
-/*   import './styles/musicPlayer.css'                                        */
-/*   import './styles/profile.css'                                            */
-/*   import './styles/missions.css'                                           */
-/*   import './styles/career.css'                                             */
-/*   import './styles/status.css'                                             */

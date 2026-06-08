@@ -73,7 +73,7 @@ export type AppState = {
   projectRowsVisible?: number;
   profilePanels: Record<number, ProfilePanel>;
   completedMissions: Set<string>;
-  projectTab: 'repo' | 'demo'; // qué pestaña de acción está activa en el lobby
-  repoClicked: boolean;        // el usuario hizo clic en "Ver Proyecto" al menos una vez
-  demoClicked: boolean;        // el usuario hizo clic en "Ver Demo" al menos una vez
+  projectTab: 'repo' | 'demo';
+  repoClicked: boolean;
+  demoClicked: boolean;
 };

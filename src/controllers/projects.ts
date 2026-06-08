@@ -3,12 +3,6 @@ import { state, setState } from '../state';
 import { updateProjectDetails, updateProjectList, updateSeasonProgress } from './domUpdates';
 import { scrollToTarget } from './navigation';
 
-// ─── How many rows to reveal per scroll step ──────────────────────────────────
-//
-// state.projectRowsVisible: 0 = closed, 1 = one row + peek, 2 = two rows + peek …
-// Each scroll DOWN adds one row. Each scroll UP removes one row.
-// When it goes past maxRows, the list closes.
-
 function getCardRowHeight(): number {
   const card = document.querySelector<HTMLElement>('.project-float-card');
   if (!card) return 160;
@@ -30,7 +24,7 @@ function applyRowVisibility(rows: number) {
   }
 
   const rowH = getCardRowHeight();
-  const peek = rowH * 0.42; // ~42% of next row visible
+  const peek = rowH * 0.42;
   const height = rowH * rows + peek;
 
   list.style.maxHeight = `${height}px`;
@@ -44,8 +38,6 @@ function getTotalRows(): number {
   if (!list) return 1;
   const rowH = getCardRowHeight();
   if (rowH <= 0) return 1;
-  // Subtract the 'peek' portion (~42% of a row) when computing total rows
-  // so the partially-visible peek doesn't count as a whole extra row.
   const peek = rowH * 0.42;
   const effectiveHeight = Math.max(0, list.scrollHeight - peek);
   return Math.max(1, Math.ceil(effectiveHeight / rowH));
@@ -64,7 +56,6 @@ function openRows(n: number) {
   applyRowVisibility(newRows);
   updateProjectList();
   updateSeasonProgress();
-  // Toggle a class when fully opened so CSS can remove the fade/mask
   const listEl = document.querySelector<HTMLElement>('.project-float-list');
   if (listEl) {
     if (newRows >= maxRows) listEl.classList.add('full-open');
@@ -77,7 +68,6 @@ export function closeList() {
   applyRowVisibility(0);
   updateProjectList();
   updateSeasonProgress();
-  // ensure mask removed when closed
   const listEl = document.querySelector<HTMLElement>('.project-float-list');
   listEl?.classList.remove('full-open');
 }
@@ -97,8 +87,8 @@ const selectProject = (index: number) => {
 export const bindProjects = () => {
   setState({ projectRowsVisible: 0 });
 
-  const THRESHOLD  = 18;  // minimum wheel delta to register a step
-  const COOLDOWN   = 300; // ms between steps
+  const THRESHOLD  = 18;
+  const COOLDOWN   = 300;
   let   wheelReady = true;
 
   const cooldown = () => {
@@ -111,8 +101,6 @@ export const bindProjects = () => {
     rows() > 0 ? closeList() : openRows(1);
   });
 
-  // ── Wheel — attached to WINDOW so it fires regardless of hover target ──────
-  // The list has overflow:hidden so no internal scroll ever competes.
   window.addEventListener('wheel', (e) => {
     if (state.activeSection !== 'proyectos') return;
     if (Math.abs(e.deltaY) < THRESHOLD) return;
@@ -121,24 +109,22 @@ export const bindProjects = () => {
     const max = getTotalRows();
 
     if (e.deltaY > 0) {
-      // ── DOWN ──
       e.preventDefault();
       if (!wheelReady) return;
       cooldown();
 
       if (r === 0) {
-        openRows(1);                        // closed → show row 1 + peek
+        openRows(1);
       } else if (r < max) {
-        openRows(r + 1);                    // add one more row
+        openRows(r + 1); 
       }
     } else {
-      // ── UP ──
-      if (r === 0) return;                  // already closed, let page scroll
+      if (r === 0) return;
       e.preventDefault();
       if (!wheelReady) return;
       cooldown();
 
-      if (r > 0) openRows(r - 1);          // remove one row (0 → closeList)
+      if (r > 0) openRows(r - 1);
     }
   }, { passive: false });
 
@@ -153,7 +139,7 @@ export const bindProjects = () => {
   window.addEventListener('touchend', (e) => {
     if (state.activeSection !== 'proyectos' || touchStartY === null) return;
     const endY  = e.changedTouches[0]?.clientY ?? touchStartY;
-    const delta = touchStartY - endY; // positive = swipe up = scroll down
+    const delta = touchStartY - endY;
     touchStartY = null;
 
     if (Math.abs(delta) < 36) return;
@@ -171,7 +157,6 @@ export const bindProjects = () => {
     }
   }, { passive: true });
 
-  // ── Card clicks (delegated) ───────────────────────────────────────────────
   document.addEventListener('click', (e) => {
     const card = (e.target as HTMLElement).closest<HTMLElement>('[data-project]');
     if (card) selectProject(Number(card.dataset.project));

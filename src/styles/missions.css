@@ -372,10 +372,6 @@
   pointer-events: none;
 }
 
-/* ─── Toast notification ─────────────────────────────────────────────────── */
-/* Container is rendered directly in .app-shell (app.ts), above all screens, */
-/* so toasts are visible regardless of which section is active.               */
-
 .app-shell > .mission-toast-container {
   position: fixed;
   top: 5.5rem;

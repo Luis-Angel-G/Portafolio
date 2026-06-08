@@ -9,7 +9,7 @@ export const MusicPlayer = (): string => `
     -->
     <div class="yt-host" data-youtube-player aria-hidden="true"></div>
 
-    <!-- Token de Lisa / marcador de álbum -->
+    <!-- Marcador de álbum -->
     <div class="lisa-token" aria-hidden="true">
       <span>♪</span>
     </div>

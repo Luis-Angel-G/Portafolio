@@ -1,5 +1,5 @@
 import { icon } from '../icons';
-import { state, setState } from '../state';
+import {  setState } from '../state';
 import { formatTime } from '../utils';
 
 // ─── YouTube IFrame API types ────────────────────────────────────────────────
@@ -161,8 +161,6 @@ export function initMusicPlayer(): void {
     const t    = cleanText(data?.title);
     const a    = cleanText(data?.author);
 
-    // getVideoData can return empty strings while YT is still loading the item;
-    // retry a few times so the title appears without user interaction.
     if (!t) {
       if (metaRetryTimer) clearTimeout(metaRetryTimer);
       metaRetryTimer = window.setTimeout(syncMeta, 600);
@@ -247,7 +245,6 @@ export function initMusicPlayer(): void {
       width:  1,
       height: 1,
       playerVars: {
-        // Load the playlist directly
         listType:   'playlist',
         list:        PLAYLIST_ID,
         autoplay:    1,
@@ -255,14 +252,12 @@ export function initMusicPlayer(): void {
         disablekb:   1,
         fs:          0,
         rel:         0,
-        // Needed so the hidden iframe doesn't cause CORS issues
         origin:      window.location.origin,
-        // Enable JS API
         enablejsapi: 1,
       },
       events: {
         onReady(e) {
-          player = e.target;          // reassign to typed reference
+          player = e.target;
           player.playVideo();
           syncMeta();
           clearProgress();
@@ -286,7 +281,6 @@ export function initMusicPlayer(): void {
               break;
 
             case ps.BUFFERING:
-              // Keep play icon showing "pause" so user knows something is loading
               break;
 
             default:
@@ -296,7 +290,6 @@ export function initMusicPlayer(): void {
 
         onError(e) {
           console.warn('[music] YT player error code', e.data);
-          // Skip to next on unplayable video errors (101, 150)
           if (e.data === 101 || e.data === 150) {
             player?.nextVideo();
           }

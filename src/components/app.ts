@@ -13,7 +13,6 @@ export const renderApp = (root: HTMLElement) => {
   main.className = 'app-shell';
   main.setAttribute('data-active-section', state.activeSection);
 
-  // ── Global toast container — lives outside any screen so it shows always ──
   const toastContainer = document.createElement('div');
   toastContainer.className = 'mission-toast-container';
   toastContainer.setAttribute('aria-live', 'polite');
@@ -42,7 +41,6 @@ export const renderApp = (root: HTMLElement) => {
     }
   });
 
-  // footer
   const footer = document.createElement('div');
   footer.innerHTML = `
     <footer class="footer-bar">

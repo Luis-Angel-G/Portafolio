@@ -106,7 +106,7 @@ export const CareerScreen = () => `
             </div>
           </div>
 
-          <!-- Desglose por lenguaje (poblado por JS) -->
+          <!-- Desglose por lenguaje -->
           <div class="gh-langs-wrap">
             <p class="eyebrow" style="margin-bottom:0.6rem">Repos por lenguaje</p>
             <div class="gh-langs" data-gh-langs>

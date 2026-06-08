@@ -1,4 +1,3 @@
-// src/services/github.ts
 // Fetches public GitHub stats and injects them into the career screen.
 
 const USERNAME = 'Luis-Angel-G';
